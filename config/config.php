@@ -1,39 +1,42 @@
 <?php
 /**
  * NARAYANA KARIMUNJAWA - Configuration
- * Environment-aware config for local & production
+ * Connects to MAIN hotel system database for real-time room & booking sync
  */
 
 // Detect environment
 $isLocal = (strpos($_SERVER['HTTP_HOST'] ?? 'localhost', 'localhost') !== false || 
             strpos($_SERVER['HTTP_HOST'] ?? '127.0.0.1', '127.0.0.1') !== false);
 
-// Database Configuration
+// Database Configuration — connects to MAIN HOTEL SYSTEM database
 if ($isLocal) {
-    // LOCAL DEVELOPMENT (XAMPP)
     define('DB_HOST', 'localhost');
     define('DB_USER', 'root');
     define('DB_PASS', '');
-    define('DB_NAME', 'adf_web_narayana');
+    define('DB_NAME', 'adf_narayana_hotel');   // Main hotel system DB
     define('DB_PORT', 3306);
 } else {
-    // PRODUCTION (Niagahoster)
-    define('DB_HOST', 'localhost'); // Usually localhost even on shared hosting
-    define('DB_USER', 'adfb2574_narayana'); // Your cPanel DB user
-    define('DB_PASS', 'your_password_here'); // Will be set during deployment
-    define('DB_NAME', 'adfb2574_web_narayana');
+    // PRODUCTION — narayanakarimunjawa.com
+    // Sesuaikan dengan credentials dari cPanel → MySQL Databases
+    define('DB_HOST', 'localhost');
+    define('DB_USER', 'narayana_dbuser');       // Ganti: cPanel username_dbuser
+    define('DB_PASS', 'GANTI_PASSWORD_DISINI'); // Ganti: password yang dibuat di cPanel
+    define('DB_NAME', 'narayana_hotel');        // Ganti: cPanel username_dbname
     define('DB_PORT', 3306);
 }
 
 // Site Configuration
-define('SITE_NAME', 'Narayana Karimunjawa Hotel');
-define('SITE_TAGLINE', 'Premium Beach Resort');
-define('SITE_DESCRIPTION', 'Narayana Hotel - Karimunjawa Islands Most Beautiful Accommodation');
+define('SITE_NAME', 'Narayana Karimunjawa');
+define('SITE_TAGLINE', 'Island Paradise Resort');
+define('SITE_DESCRIPTION', 'Luxury beachfront resort in the heart of Karimunjawa Islands. Premium accommodations with stunning ocean views.');
 
 // URLs
-$script_name = $_SERVER['SCRIPT_NAME'] ?? '/narayanakarimunjawa/public/index.php';
-$base_path = dirname($script_name);
-if ($base_path === '/') {
+if ($isLocal) {
+    $script_name = $_SERVER['SCRIPT_NAME'] ?? '/narayanakarimunjawa/public/index.php';
+    $base_path = dirname($script_name);
+    if ($base_path === '/' || $base_path === '\\') $base_path = '';
+} else {
+    // Production: domain root = public_html = website root
     $base_path = '';
 }
 define('SITE_URL', 'http' . ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 's' : '') . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost'));
@@ -41,10 +44,14 @@ define('BASE_URL', $base_path);
 
 // Business Information
 define('BUSINESS_EMAIL', 'narayanahotelkarimunjawa@gmail.com');
-define('BUSINESS_PHONE', '+62-812-2222-8590');
-define('BUSINESS_ADDRESS', 'Karimunjawa, Jepara, Central Java, Indonesia');
+define('BUSINESS_PHONE', '+62 812-2222-8590');
+define('BUSINESS_ADDRESS', 'Karimunjawa, Jepara, Central Java, Indonesia 59455');
+define('BUSINESS_WHATSAPP', '6281222228590');
+define('BUSINESS_INSTAGRAM', 'narayanakarimunjawa');
+define('BUSINESS_CHECKIN_TIME', '14:00');
+define('BUSINESS_CHECKOUT_TIME', '12:00');
 
-// Payment Gateway (will be configured later)
+// Payment Gateway
 define('MIDTRANS_MERCHANT_ID', 'MERCHANT_ID');
 define('MIDTRANS_CLIENT_KEY', 'CLIENT_KEY');
 define('MIDTRANS_SERVER_KEY', 'SERVER_KEY');
@@ -59,33 +66,33 @@ define('SMTP_PASS', 'your-app-password');
 // Debug Mode
 define('DEBUG_MODE', $isLocal);
 
-// Session Configuration
-ini_set('session.cookie_httponly', 1);
-ini_set('session.cookie_secure', !$isLocal);
-session_start();
+// Session
+if (session_status() === PHP_SESSION_NONE) {
+    ini_set('session.cookie_httponly', 1);
+    ini_set('session.cookie_secure', !$isLocal);
+    session_start();
+}
 
 // Error Reporting
 if (DEBUG_MODE) {
     error_reporting(E_ALL);
     ini_set('display_errors', 1);
 } else {
-    error_reporting(E_ALL);
+    error_reporting(0);
     ini_set('display_errors', 0);
     ini_set('log_errors', 1);
     ini_set('error_log', __DIR__ . '/../logs/error.log');
 }
 
-// Create logs directory if not exists
 if (!is_dir(__DIR__ . '/../logs')) {
-    mkdir(__DIR__ . '/../logs', 0755, true);
+    @mkdir(__DIR__ . '/../logs', 0755, true);
 }
 
-// PDO Database Connection
+// PDO Database Connection — direct to main hotel system
 try {
     $pdo = new PDO(
         'mysql:host=' . DB_HOST . ';port=' . DB_PORT . ';dbname=' . DB_NAME . ';charset=utf8mb4',
-        DB_USER,
-        DB_PASS,
+        DB_USER, DB_PASS,
         [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
@@ -96,7 +103,7 @@ try {
     if (DEBUG_MODE) {
         die('Database Connection Error: ' . $e->getMessage());
     } else {
-        die('Database connection failed. Please contact support.');
+        die('Service temporarily unavailable. Please try again later.');
     }
 }
 

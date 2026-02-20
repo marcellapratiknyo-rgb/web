@@ -1,98 +1,254 @@
 <?php
 /**
- * NARAYANA KARIMUNJAWA - Homepage
+ * NARAYANA KARIMUNJAWA — Homepage
+ * Marriott-Inspired Clean Luxury Design
  */
-
 require_once dirname(__DIR__) . '/config/config.php';
 
-$pageTitle = 'Home';
-$additionalCSS = [];
-$additionalJS = [];
+$currentPage = 'home';
 
+// Room types with availability
+$roomTypes = dbFetchAll("
+    SELECT rt.*, 
+           COUNT(r.id) as total_rooms,
+           SUM(CASE WHEN r.status = 'available' THEN 1 ELSE 0 END) as available_rooms
+    FROM room_types rt
+    LEFT JOIN rooms r ON rt.id = r.room_type_id
+    GROUP BY rt.id
+    ORDER BY rt.base_price DESC
+");
+
+// Today's stats
+$today = date('Y-m-d');
+$tomorrow = date('Y-m-d', strtotime('+1 day'));
+$totalRooms = dbFetch("SELECT COUNT(*) as c FROM rooms")['c'] ?? 0;
+$availableNow = dbFetch("
+    SELECT COUNT(*) as c FROM rooms 
+    WHERE status IN ('available','cleaning')
+    AND id NOT IN (
+        SELECT room_id FROM bookings 
+        WHERE status IN ('pending','confirmed','checked_in')
+        AND check_in_date <= ? AND check_out_date > ?
+    )
+", [$today, $today])['c'] ?? 0;
+
+$roomIcons = ['King' => '👑', 'Queen' => '🌙', 'Twin' => '🛏️'];
+
+include __DIR__ . '/includes/header.php';
 ?>
-<?php include __DIR__ . '/includes/header.php'; ?>
 
-<section class="section" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 4rem 0;">
+<!-- Hero -->
+<section class="hero">
+    <div class="hero-bg"></div>
     <div class="container">
-        <div style="max-width: 600px;">
-            <h1 style="font-size: 3rem; margin-bottom: 1rem; font-weight: bold;">Welcome to Narayana Karimunjawa</h1>
-            <p style="font-size: 1.25rem; margin-bottom: 2rem; opacity: 0.9;">Experience paradise on earth. A premium beach resort offering luxury accommodations and world-class services in the heart of Karimunjawa Islands.</p>
-            <a href="<?= BASE_URL ?>/booking.php" class="btn btn-primary" style="background: white; color: #667eea; font-weight: 700; padding: 1rem 2rem;">Book Your Stay Now →</a>
+        <div class="hero-content">
+            <div class="hero-eyebrow">Karimunjawa Islands · Indonesia</div>
+            <h1>Where the Ocean<br>Meets <em>Tranquility</em></h1>
+            <p class="hero-text">Escape to our island resort surrounded by crystal-clear waters, pristine beaches, and the serenity of an untouched tropical paradise.</p>
+            <div class="btn-group">
+                <a href="<?= BASE_URL ?>/booking.php" class="btn btn-white btn-lg">Check Availability</a>
+                <a href="<?= BASE_URL ?>/rooms.php" class="btn btn-outline-white btn-lg">View Rooms</a>
+            </div>
         </div>
     </div>
 </section>
 
+<!-- Booking Bar -->
+<div class="booking-bar">
+    <div class="container">
+        <div class="booking-bar-inner">
+            <form class="booking-bar-form" action="<?= BASE_URL ?>/booking.php" method="GET">
+                <div class="form-group">
+                    <label>Check-in</label>
+                    <input type="date" name="check_in" min="<?= $today ?>" value="<?= $today ?>" required>
+                </div>
+                <div class="form-group">
+                    <label>Check-out</label>
+                    <input type="date" name="check_out" min="<?= $tomorrow ?>" value="<?= $tomorrow ?>" required>
+                </div>
+                <div class="form-group">
+                    <label>Guests</label>
+                    <select name="guests">
+                        <option value="1">1 Guest</option>
+                        <option value="2" selected>2 Guests</option>
+                        <option value="3">3 Guests</option>
+                        <option value="4">4 Guests</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Find Rooms</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Rooms -->
 <section class="section">
     <div class="container">
-        <h2 style="text-align: center; margin-bottom: 3rem; font-size: 2rem; font-weight: bold;">Our Room Types</h2>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem;">
-            <div class="card" style="text-align: center;">
-                <h3 style="margin-bottom: 0.5rem;">Standard Room</h3>
-                <p style="color: #6b7280; margin-bottom: 1rem;">Comfortable room with basic amenities</p>
-                <p style="font-size: 1.5rem; color: #667eea; font-weight: bold; margin-bottom: 1rem;">Rp 450.000/night</p>
-                <a href="<?= BASE_URL ?>/rooms.php" class="btn btn-primary">View Details</a>
+        <div class="section-header text-center fade-in">
+            <div class="section-eyebrow">Accommodations</div>
+            <h2 class="section-title">Our Rooms</h2>
+            <div class="divider center"></div>
+            <p class="section-desc center">Every room is designed for comfort and relaxation with modern amenities and island charm.</p>
+        </div>
+
+        <div class="rooms-grid">
+            <?php foreach ($roomTypes as $room):
+                $amenities = $room['amenities'] ? explode(',', $room['amenities']) : [];
+                $icon = $roomIcons[$room['type_name']] ?? '🏨';
+                $avail = (int)$room['available_rooms'];
+                $total = (int)$room['total_rooms'];
+                
+                if ($avail >= 3) { $ac = 'available'; $at = $avail . ' Available'; }
+                elseif ($avail > 0) { $ac = 'limited'; $at = 'Only ' . $avail . ' Left'; }
+                else { $ac = 'full'; $at = 'Fully Booked'; }
+            ?>
+            <div class="room-card fade-in">
+                <div class="room-card-image">
+                    <span class="room-type-badge"><?= htmlspecialchars($room['type_name']) ?></span>
+                    <div class="room-visual"><?= $icon ?></div>
+                </div>
+                <div class="room-card-body">
+                    <h3><?= htmlspecialchars($room['type_name']) ?> Room</h3>
+                    <div class="room-meta">
+                        <span class="room-meta-item"><i class="fas fa-user"></i> Up to <?= $room['max_occupancy'] ?> guests</span>
+                        <span class="room-meta-item"><i class="fas fa-door-open"></i> <?= $total ?> rooms</span>
+                    </div>
+                    <div class="room-amenities">
+                        <?php foreach (array_slice($amenities, 0, 4) as $a): ?>
+                            <span><?= htmlspecialchars(trim($a)) ?></span>
+                        <?php endforeach; ?>
+                    </div>
+                    <div class="room-card-footer">
+                        <div class="room-price"><?= formatCurrency($room['base_price']) ?><small>/night</small></div>
+                        <span class="avail-badge <?= $ac ?>"><span class="avail-dot"></span><?= $at ?></span>
+                    </div>
+                    <div style="margin-top:16px;">
+                        <a href="<?= BASE_URL ?>/booking.php?room_type=<?= $room['id'] ?>" class="btn btn-primary btn-block">Book This Room</a>
+                    </div>
+                </div>
             </div>
-            
-            <div class="card" style="text-align: center;">
-                <h3 style="margin-bottom: 0.5rem;">Deluxe Room</h3>
-                <p style="color: #6b7280; margin-bottom: 1rem;">Spacious room with ocean view</p>
-                <p style="font-size: 1.5rem; color: #667eea; font-weight: bold; margin-bottom: 1rem;">Rp 650.000/night</p>
-                <a href="<?= BASE_URL ?>/rooms.php" class="btn btn-primary">View Details</a>
-            </div>
-            
-            <div class="card" style="text-align: center;">
-                <h3 style="margin-bottom: 0.5rem;">Suite</h3>
-                <p style="color: #6b7280; margin-bottom: 1rem;">Premium suite with living area</p>
-                <p style="font-size: 1.5rem; color: #667eea; font-weight: bold; margin-bottom: 1rem;">Rp 950.000/night</p>
-                <a href="<?= BASE_URL ?>/rooms.php" class="btn btn-primary">View Details</a>
-            </div>
-            
-            <div class="card" style="text-align: center;">
-                <h3 style="margin-bottom: 0.5rem;">Villa</h3>
-                <p style="color: #6b7280; margin-bottom: 1rem;">Private villa with private pool</p>
-                <p style="font-size: 1.5rem; color: #667eea; font-weight: bold; margin-bottom: 1rem;">Rp 1.500.000/night</p>
-                <a href="<?= BASE_URL ?>/rooms.php" class="btn btn-primary">View Details</a>
-            </div>
+            <?php endforeach; ?>
         </div>
     </div>
 </section>
 
-<section class="section" style="background: #f3f4f6;">
+<!-- Features -->
+<section class="section section-alt">
     <div class="container">
-        <h2 style="text-align: center; margin-bottom: 3rem; font-size: 2rem; font-weight: bold;">Why Choose Us?</h2>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem;">
-            <div style="text-align: center;">
-                <div style="font-size: 3rem; margin-bottom: 1rem;">🏖️</div>
-                <h3 style="margin-bottom: 0.5rem;">Beach Location</h3>
-                <p style="color: #6b7280;">Located directly on the beach with stunning ocean views and white sandy shores.</p>
+        <div class="section-header text-center fade-in">
+            <div class="section-eyebrow">Experience</div>
+            <h2 class="section-title">Why Narayana</h2>
+            <div class="divider center"></div>
+        </div>
+
+        <div class="features-grid">
+            <div class="feature-card fade-in">
+                <div class="feature-icon"><i class="fas fa-water"></i></div>
+                <h4>Beachfront Location</h4>
+                <p>Step directly onto pristine white sandy shores with crystal-clear turquoise waters.</p>
             </div>
-            
-            <div style="text-align: center;">
-                <div style="font-size: 3rem; margin-bottom: 1rem;">⭐</div>
-                <h3 style="margin-bottom: 0.5rem;">Premium Service</h3>
-                <p style="color: #6b7280;">24/7 customer service with multilingual staff ready to assist you.</p>
+            <div class="feature-card fade-in">
+                <div class="feature-icon"><i class="fas fa-concierge-bell"></i></div>
+                <h4>Personalised Service</h4>
+                <p>Dedicated staff ensuring every aspect of your stay is tailored to your preferences.</p>
             </div>
-            
-            <div style="text-align: center;">
-                <div style="font-size: 3rem; margin-bottom: 1rem;">💰</div>
-                <h3 style="margin-bottom: 0.5rem;">Best Rates</h3>
-                <p style="color: #6b7280;">Competitive prices with flexible booking options and special discounts.</p>
+            <div class="feature-card fade-in">
+                <div class="feature-icon"><i class="fas fa-anchor"></i></div>
+                <h4>Island Activities</h4>
+                <p>Snorkelling, diving, island hopping, and sunset cruises arranged for our guests.</p>
             </div>
-            
-            <div style="text-align: center;">
-                <div style="font-size: 3rem; margin-bottom: 1rem;">🎉</div>
-                <h3 style="margin-bottom: 0.5rem;">Activities</h3>
-                <p style="color: #6b7280;">Water sports, island hopping, and exciting adventure packages available.</p>
+            <div class="feature-card fade-in">
+                <div class="feature-icon"><i class="fas fa-utensils"></i></div>
+                <h4>Fresh Cuisine</h4>
+                <p>Freshly caught seafood and authentic local dishes prepared by skilled chefs.</p>
             </div>
         </div>
     </div>
 </section>
 
+<!-- Stats -->
+<section class="section-dark">
+    <div class="container">
+        <div class="stats-bar">
+            <div class="stat-item fade-in">
+                <div class="stat-value"><?= $totalRooms ?></div>
+                <div class="stat-label">Total Rooms</div>
+            </div>
+            <div class="stat-item fade-in">
+                <div class="stat-value"><?= $availableNow ?></div>
+                <div class="stat-label">Available Tonight</div>
+            </div>
+            <div class="stat-item fade-in">
+                <div class="stat-value"><?= count($roomTypes) ?></div>
+                <div class="stat-label">Room Categories</div>
+            </div>
+            <div class="stat-item fade-in">
+                <div class="stat-value">4.8</div>
+                <div class="stat-label">Guest Rating</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials -->
 <section class="section">
-    <div class="container" style="text-align: center;">
-        <h2 style="margin-bottom: 2rem; font-size: 2rem; font-weight: bold;">Ready to Book Your Paradise?</h2>
-        <p style="font-size: 1.1rem; margin-bottom: 2rem; color: #6b7280;">Find the perfect room for your stay and create unforgettable memories in Karimunjawa.</p>
-        <a href="<?= BASE_URL ?>/booking.php" class="btn btn-primary" style="padding: 1rem 3rem; font-size: 1.1rem;">Start Booking Now →</a>
+    <div class="container">
+        <div class="section-header text-center fade-in">
+            <div class="section-eyebrow">Reviews</div>
+            <h2 class="section-title">What Our Guests Say</h2>
+            <div class="divider center"></div>
+        </div>
+
+        <div class="testimonials-grid">
+            <div class="testimonial-card fade-in">
+                <div class="testimonial-stars">★★★★★</div>
+                <blockquote>"The most beautiful place I've ever stayed. Waking up to the sound of waves and stepping onto that white sand — simply magical."</blockquote>
+                <div class="testimonial-author">
+                    <div class="testimonial-avatar">SC</div>
+                    <div>
+                        <div class="testimonial-name">Sarah Chen</div>
+                        <div class="testimonial-origin">Singapore</div>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial-card fade-in">
+                <div class="testimonial-stars">★★★★★</div>
+                <blockquote>"Incredible service and attention to detail. The staff arranged a private island tour that was the highlight of our trip."</blockquote>
+                <div class="testimonial-author">
+                    <div class="testimonial-avatar">MR</div>
+                    <div>
+                        <div class="testimonial-name">Marco Rossi</div>
+                        <div class="testimonial-origin">Italy</div>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial-card fade-in">
+                <div class="testimonial-stars">★★★★★</div>
+                <blockquote>"A hidden paradise. Karimunjawa is still so unspoiled and Narayana made everything easy. Will definitely return."</blockquote>
+                <div class="testimonial-author">
+                    <div class="testimonial-avatar">AW</div>
+                    <div>
+                        <div class="testimonial-name">Andi Wijaya</div>
+                        <div class="testimonial-origin">Jakarta, Indonesia</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+    <div class="container">
+        <div class="section-eyebrow" style="color:var(--gold-light);">Ready to escape?</div>
+        <h2>Begin Your Island Journey</h2>
+        <p>Book your stay and experience the magic of Karimunjawa.</p>
+        <div class="btn-group" style="justify-content:center;">
+            <a href="<?= BASE_URL ?>/booking.php" class="btn btn-gold btn-lg">Reserve Your Room</a>
+            <a href="https://wa.me/<?= BUSINESS_WHATSAPP ?>?text=Hi%20Narayana%2C%20I%27d%20like%20to%20inquire%20about%20a%20reservation" target="_blank" class="btn btn-outline-white btn-lg">
+                <i class="fab fa-whatsapp"></i> WhatsApp
+            </a>
+        </div>
     </div>
 </section>
 

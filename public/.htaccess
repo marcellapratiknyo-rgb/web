@@ -1,7 +1,13 @@
 RewriteEngine On
 RewriteBase /narayanakarimunjawa/public/
 
-# Remove index.php from URL
+# Clean URLs — add .php if the file exists
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}.php -f
+RewriteRule ^(.*)$ $1.php [QSA,L]
+
+# Fallback to index.php for anything else
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^(.*)$ index.php?url=$1 [QSA,L]

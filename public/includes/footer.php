@@ -1,119 +1,111 @@
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-section">
-                    <h3>About Us</h3>
-                    <p style="margin-bottom: 1rem;">Narayana Hotel is a premium beach resort located in the beautiful Karimunjawa Islands, offering world-class hospitality and unforgettable experiences.</p>
-                </div>
-                
-                <div class="footer-section">
-                    <h3>Quick Links</h3>
-                    <ul>
-                        <li><a href="<?= BASE_URL ?>">Home</a></li>
-                        <li><a href="<?= BASE_URL ?>/rooms.php">Room Types</a></li>
-                        <li><a href="<?= BASE_URL ?>/booking.php">Book Now</a></li>
-                        <li><a href="<?= BASE_URL ?>/contact.php">Contact Us</a></li>
-                    </ul>
-                </div>
-                
-                <div class="footer-section">
-                    <h3>Contact Information</h3>
-                    <ul>
-                        <li><i class="fas fa-phone"></i> <?= htmlspecialchars(BUSINESS_PHONE) ?></li>
-                        <li><i class="fas fa-envelope"></i> <?= htmlspecialchars(BUSINESS_EMAIL) ?></li>
-                        <li><i class="fas fa-map-marker-alt"></i> <?= htmlspecialchars(BUSINESS_ADDRESS) ?></li>
-                    </ul>
-                </div>
-                
-                <div class="footer-section">
-                    <h3>Follow Us</h3>
-                    <ul>
-                        <li><a href="https://facebook.com" target="_blank"><i class="fab fa-facebook"></i> Facebook</a></li>
-                        <li><a href="https://instagram.com" target="_blank"><i class="fab fa-instagram"></i> Instagram</a></li>
-                        <li><a href="https://twitter.com" target="_blank"><i class="fab fa-twitter"></i> Twitter</a></li>
-                    </ul>
+<!-- Footer -->
+<footer class="footer">
+    <div class="container">
+        <div class="footer-grid">
+            <div class="footer-about">
+                <h5>Narayana Karimunjawa</h5>
+                <p>A beachfront resort on the pristine Karimunjawa Islands. Natural beauty meets refined Indonesian hospitality.</p>
+                <div class="footer-social">
+                    <a href="https://www.instagram.com/<?= BUSINESS_INSTAGRAM ?>" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="https://wa.me/<?= BUSINESS_WHATSAPP ?>" target="_blank" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                    <a href="mailto:<?= BUSINESS_EMAIL ?>" aria-label="Email"><i class="fas fa-envelope"></i></a>
                 </div>
             </div>
-            
-            <div class="footer-bottom">
-                <p>&copy; <?= date('Y') ?> <?= htmlspecialchars(SITE_NAME) ?>. All rights reserved.</p>
+            <div>
+                <h5>Explore</h5>
+                <ul class="footer-links">
+                    <li><a href="<?= BASE_URL ?>/rooms.php">Rooms</a></li>
+                    <li><a href="<?= BASE_URL ?>/booking.php">Reservations</a></li>
+                    <li><a href="<?= BASE_URL ?>/contact.php">Contact</a></li>
+                </ul>
+            </div>
+            <div>
+                <h5>Information</h5>
+                <ul class="footer-links">
+                    <li><a href="<?= BASE_URL ?>/booking.php">Check Availability</a></li>
+                    <li><a href="#">Cancellation Policy</a></li>
+                    <li><a href="#">Getting Here</a></li>
+                </ul>
+            </div>
+            <div>
+                <h5>Contact</h5>
+                <ul class="footer-contact">
+                    <li>
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span><?= BUSINESS_ADDRESS ?></span>
+                    </li>
+                    <li>
+                        <i class="fas fa-phone"></i>
+                        <a href="tel:<?= BUSINESS_PHONE ?>"><?= BUSINESS_PHONE ?></a>
+                    </li>
+                    <li>
+                        <i class="fas fa-envelope"></i>
+                        <a href="mailto:<?= BUSINESS_EMAIL ?>"><?= BUSINESS_EMAIL ?></a>
+                    </li>
+                    <li>
+                        <i class="fas fa-clock"></i>
+                        <span>Check-in <?= BUSINESS_CHECKIN_TIME ?> · Check-out <?= BUSINESS_CHECKOUT_TIME ?></span>
+                    </li>
+                </ul>
             </div>
         </div>
-    </footer>
-    
-    <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
-    <?php if (!empty($additionalJS)): ?>
-        <?php foreach ($additionalJS as $js): ?>
-        <script src="<?= BASE_URL ?>/assets/js/<?= htmlspecialchars($js) ?>"></script>
-        <?php endforeach; ?>
-    <?php endif; ?>
-    
-    <script>
-        feather.replace();
-        
-        // Show Notification
-        function showNotification(message, type = 'info') {
-            const notification = document.createElement('div');
-            notification.className = `alert alert-${type}`;
-            notification.textContent = message;
-            notification.style.position = 'fixed';
-            notification.style.top = '20px';
-            notification.style.right = '20px';
-            notification.style.minWidth = '300px';
-            notification.style.zIndex = '9999';
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                notification.remove();
-            }, 5000);
+        <div class="footer-bottom">
+            <span>&copy; <?= date('Y') ?> Narayana Karimunjawa. All rights reserved.</span>
+            <span>Karimunjawa Island, Central Java, Indonesia</span>
+        </div>
+    </div>
+</footer>
+
+<script>
+// Navbar scroll
+const nav = document.getElementById('mainNav');
+window.addEventListener('scroll', () => nav.classList.toggle('scrolled', window.scrollY > 50));
+if (window.scrollY > 50) nav.classList.add('scrolled');
+
+// Mobile nav
+const navToggle = document.getElementById('navToggle');
+const navLinks = document.getElementById('navLinks');
+navToggle?.addEventListener('click', () => navLinks.classList.toggle('open'));
+document.querySelectorAll('#navLinks a:not(.nav-book-btn)').forEach(link => {
+    link.addEventListener('click', () => navLinks.classList.remove('open'));
+});
+
+// Fade-in observer
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            observer.unobserve(entry.target);
         }
-        
-        // API Call Helper
-        function apiCall(url, method = 'GET', data = null) {
-            const options = {
-                method: method,
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            };
-            
-            if (data && method !== 'GET') {
-                options.body = JSON.stringify(data);
-            }
-            
-            return fetch(url, options).then(response => response.json());
-        }
-        
-        // Format Currency
-        function formatCurrency(amount) {
-            return new Intl.NumberFormat('id-ID', {
-                style: 'currency',
-                currency: 'IDR',
-                minimumFractionDigits: 0
-            }).format(amount);
-        }
-        
-        // Format Date
-        function formatDate(dateString) {
-            return new Date(dateString).toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            });
-        }
-        
-        // Email Validation
-        function isValidEmail(email) {
-            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-        }
-        
-        // Phone Validation
-        function isValidPhone(phone) {
-            return /^(\+62|0)[0-9]{9,12}$/.test(phone.replace(/\s/g, ''));
-        }
-    </script>
+    });
+}, { threshold: 0.1 });
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+// Utils
+function formatCurrency(amount) {
+    return 'Rp ' + new Intl.NumberFormat('id-ID').format(amount);
+}
+
+function showToast(message, type = 'info') {
+    const existing = document.querySelector('.toast');
+    if (existing) existing.remove();
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    requestAnimationFrame(() => toast.classList.add('show'));
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 400);
+    }, 4000);
+}
+
+async function apiCall(url, method = 'GET', data = null) {
+    const options = { method, headers: { 'Content-Type': 'application/json' } };
+    if (data && method !== 'GET') options.body = JSON.stringify(data);
+    const response = await fetch(url, options);
+    return response.json();
+}
+</script>
 </body>
 </html>
