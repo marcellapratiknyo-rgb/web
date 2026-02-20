@@ -16,12 +16,12 @@ if ($isLocal) {
     define('DB_NAME', 'adf_narayana_hotel');   // Main hotel system DB
     define('DB_PORT', 3306);
 } else {
-    // PRODUCTION — narayanakarimunjawa.com
-    // Sesuaikan dengan credentials dari cPanel → MySQL Databases
+    // PRODUCTION — narayanakarimunjawa.com (same hosting as adf_system)
+    // Database yang sama dengan adf_system hotel module
     define('DB_HOST', 'localhost');
-    define('DB_USER', 'narayana_dbuser');       // Ganti: cPanel username_dbuser
-    define('DB_PASS', 'GANTI_PASSWORD_DISINI'); // Ganti: password yang dibuat di cPanel
-    define('DB_NAME', 'narayana_hotel');        // Ganti: cPanel username_dbname
+    define('DB_USER', 'adfb2574_adfsystem');    // Same user as adf_system
+    define('DB_PASS', '@Nnoc2025');             // Same password as adf_system
+    define('DB_NAME', 'adfb2574_narayana_hotel'); // Hotel database on hosting
     define('DB_PORT', 3306);
 }
 
