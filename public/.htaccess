@@ -1,0 +1,17 @@
+<RewriteEngine On>
+RewriteBase /narayanakarimunjawa/public/
+
+# Remove index.php from URL
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php?url=$1 [QSA,L]
+
+# Hide sensitive files
+<Files ~ "\.php$">
+    deny from all
+</Files>
+
+# Allow only specific PHP files
+<FilesMatch "^(index|booking|rooms|contact|confirmation)\.php$">
+    allow from all
+</FilesMatch>
