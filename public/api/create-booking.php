@@ -7,7 +7,10 @@ header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST');
 
-require_once dirname(__DIR__, 2) . '/config/config.php';
+// Flexible path: works on hosting (config inside webroot) and local dev (config outside public/)
+$_cfg = dirname(__DIR__) . '/config/config.php';
+if (!file_exists($_cfg)) $_cfg = dirname(__DIR__, 2) . '/config/config.php';
+require_once $_cfg;
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);

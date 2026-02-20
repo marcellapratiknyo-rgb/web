@@ -3,7 +3,10 @@
  * NARAYANA KARIMUNJAWA — Contact
  * Marriott-style contact page
  */
-require_once dirname(__DIR__) . '/config/config.php';
+// Flexible path: works on hosting (config inside webroot) and local dev (config outside public/)
+$_cfg = __DIR__ . '/config/config.php';
+if (!file_exists($_cfg)) $_cfg = dirname(__DIR__) . '/config/config.php';
+require_once $_cfg;
 
 $currentPage = 'contact';
 $pageTitle = 'Contact Us';
