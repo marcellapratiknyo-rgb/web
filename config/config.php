@@ -31,8 +31,13 @@ define('SITE_TAGLINE', 'Premium Beach Resort');
 define('SITE_DESCRIPTION', 'Narayana Hotel - Karimunjawa Islands Most Beautiful Accommodation');
 
 // URLs
-define('SITE_URL', 'http' . ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 's' : '') . '://' . $_SERVER['HTTP_HOST']);
-define('BASE_URL', rtrim(dirname($_SERVER['SCRIPT_NAME']), '/\\'));
+$script_name = $_SERVER['SCRIPT_NAME'] ?? '/narayanakarimunjawa/public/index.php';
+$base_path = dirname($script_name);
+if ($base_path === '/') {
+    $base_path = '';
+}
+define('SITE_URL', 'http' . ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 's' : '') . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost'));
+define('BASE_URL', $base_path);
 
 // Business Information
 define('BUSINESS_EMAIL', 'narayanahotelkarimunjawa@gmail.com');

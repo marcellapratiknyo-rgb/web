@@ -3,14 +3,14 @@
  * NARAYANA KARIMUNJAWA - Homepage
  */
 
-require_once './includes/config.php' ?? die('Config not found');
+require_once dirname(__DIR__) . '/config/config.php';
 
 $pageTitle = 'Home';
 $additionalCSS = [];
 $additionalJS = [];
 
 ?>
-<?php include './includes/header.php'; ?>
+<?php include __DIR__ . '/includes/header.php'; ?>
 
 <section class="section" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 4rem 0;">
     <div class="container">
@@ -96,4 +96,4 @@ $additionalJS = [];
     </div>
 </section>
 
-<?php include './includes/footer.php'; ?>
+<?php include __DIR__ . '/includes/footer.php'; ?>

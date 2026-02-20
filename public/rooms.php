@@ -3,7 +3,7 @@
  * NARAYANA KARIMUNJAWA - Room Types Page
  */
 
-require_once './includes/config.php';
+require_once dirname(__DIR__) . '/config/config.php';
 
 $pageTitle = 'Our Rooms';
 $additionalCSS = [];
@@ -19,7 +19,7 @@ try {
 }
 
 ?>
-<?php include './includes/header.php'; ?>
+<?php include __DIR__ . '/includes/header.php'; ?>
 
 <section class="section" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 3rem 0;">
     <div class="container">
@@ -114,4 +114,4 @@ try {
     </div>
 </section>
 
-<?php include './includes/footer.php'; ?>
+<?php include __DIR__ . '/includes/footer.php'; ?>
