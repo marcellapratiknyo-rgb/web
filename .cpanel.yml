@@ -1,0 +1,27 @@
+---
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/adfb2574/public_html/narayanakarimunjawa.com
+    # Copy public files to document root
+    - /bin/cp -f $REPOPATH/public/index.php $DEPLOYPATH/index.php
+    - /bin/cp -f $REPOPATH/public/rooms.php $DEPLOYPATH/rooms.php
+    - /bin/cp -f $REPOPATH/public/booking.php $DEPLOYPATH/booking.php
+    - /bin/cp -f $REPOPATH/public/contact.php $DEPLOYPATH/contact.php
+    - /bin/cp -f $REPOPATH/public/confirmation.php $DEPLOYPATH/confirmation.php
+    - /bin/cp -f $REPOPATH/public/.htaccess.production $DEPLOYPATH/.htaccess
+    # API
+    - /bin/mkdir -p $DEPLOYPATH/api
+    - /bin/cp -f $REPOPATH/public/api/create-booking.php $DEPLOYPATH/api/create-booking.php
+    # Assets
+    - /bin/mkdir -p $DEPLOYPATH/assets/css
+    - /bin/mkdir -p $DEPLOYPATH/assets/images
+    - /bin/mkdir -p $DEPLOYPATH/assets/js
+    - /bin/cp -f $REPOPATH/public/assets/css/style.css $DEPLOYPATH/assets/css/style.css
+    # Includes
+    - /bin/mkdir -p $DEPLOYPATH/includes
+    - /bin/cp -f $REPOPATH/public/includes/header.php $DEPLOYPATH/includes/header.php
+    - /bin/cp -f $REPOPATH/public/includes/footer.php $DEPLOYPATH/includes/footer.php
+    # Config & Logs
+    - /bin/mkdir -p $DEPLOYPATH/config
+    - /bin/cp -f $REPOPATH/config/config.php $DEPLOYPATH/config/config.php
+    - /bin/mkdir -p $DEPLOYPATH/logs
