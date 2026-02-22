@@ -15,6 +15,7 @@
                 <h5>Explore</h5>
                 <ul class="footer-links">
                     <li><a href="<?= BASE_URL ?>/rooms.php">Rooms</a></li>
+                    <li><a href="<?= BASE_URL ?>/destinations.php">Destinations</a></li>
                     <li><a href="<?= BASE_URL ?>/booking.php">Reservations</a></li>
                     <li><a href="<?= BASE_URL ?>/contact.php">Contact</a></li>
                 </ul>

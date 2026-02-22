@@ -10,10 +10,12 @@
     <?php
     // Load favicon from database
     $faviconPath = '';
+    $logoPath = '';
     try {
-        $favRow = dbFetch("SELECT setting_value FROM settings WHERE setting_key = 'web_favicon'");
-        if ($favRow && !empty($favRow['setting_value'])) {
-            $faviconPath = $favRow['setting_value'];
+        $brandRows = dbFetchAll("SELECT setting_key, setting_value FROM settings WHERE setting_key IN ('web_favicon', 'web_logo')");
+        foreach ($brandRows as $br) {
+            if ($br['setting_key'] === 'web_favicon' && !empty($br['setting_value'])) $faviconPath = $br['setting_value'];
+            if ($br['setting_key'] === 'web_logo' && !empty($br['setting_value'])) $logoPath = $br['setting_value'];
         }
     } catch (Exception $e) {}
     if (!empty($faviconPath)):
@@ -37,12 +39,18 @@
 <nav class="navbar" id="mainNav">
     <div class="container">
         <a href="<?= BASE_URL ?>/" class="navbar-brand">
-            <div class="brand-logo">Narayana</div>
-            <div class="brand-sub">Karimunjawa</div>
+            <?php if (!empty($logoPath)): ?>
+            <img src="<?= BASE_URL ?>/<?= htmlspecialchars($logoPath) ?>" alt="Narayana" class="brand-img">
+            <?php endif; ?>
+            <div class="brand-text">
+                <div class="brand-logo">Narayana</div>
+                <div class="brand-sub">Karimunjawa</div>
+            </div>
         </a>
         <ul class="nav-links" id="navLinks">
             <li><a href="<?= BASE_URL ?>/" class="<?= ($currentPage ?? '') === 'home' ? 'active' : '' ?>">Home</a></li>
             <li><a href="<?= BASE_URL ?>/rooms.php" class="<?= ($currentPage ?? '') === 'rooms' ? 'active' : '' ?>">Rooms</a></li>
+            <li><a href="<?= BASE_URL ?>/destinations.php" class="<?= ($currentPage ?? '') === 'destinations' ? 'active' : '' ?>">Destinations</a></li>
             <li><a href="<?= BASE_URL ?>/booking.php" class="<?= ($currentPage ?? '') === 'booking' ? 'active' : '' ?>">Reservations</a></li>
             <li><a href="<?= BASE_URL ?>/contact.php" class="<?= ($currentPage ?? '') === 'contact' ? 'active' : '' ?>">Contact</a></li>
             <li><a href="<?= BASE_URL ?>/booking.php" class="nav-book-btn">Book Now</a></li>

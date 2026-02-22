@@ -24,6 +24,7 @@ $files = [
     'public/booking.php' => 'booking.php',
     'public/contact.php' => 'contact.php',
     'public/confirmation.php' => 'confirmation.php',
+    'public/destinations.php' => 'destinations.php',
     'public/test.php' => 'test.php',
     'public/.htaccess.production' => '.htaccess',
     
@@ -52,6 +53,9 @@ $dirs = [
     'config',
     'logs',
     'uploads',
+    'uploads/destinations',
+    'uploads/logo',
+    'uploads/favicon',
 ];
 
 // === START ===
