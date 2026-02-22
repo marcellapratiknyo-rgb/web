@@ -1,7 +1,7 @@
 ---
 deployment:
   tasks:
-    - export DEPLOYPATH=/home/adfb2574/public_html/narayanakarimunjawa.com
+    - export DEPLOYPATH=/home/adfb2574/narayanakarimunjawa.com
     # Copy public files to document root
     - /bin/cp -f $REPOPATH/public/index.php $DEPLOYPATH/index.php
     - /bin/cp -f $REPOPATH/public/rooms.php $DEPLOYPATH/rooms.php
