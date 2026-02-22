@@ -117,16 +117,16 @@ require_once __DIR__ . '/includes/header.php';
     <div class="container">
         <div class="about-layout fade-in">
             <div class="about-content">
-                <div class="section-eyebrow">Tentang Kami</div>
-                <h2 class="section-title">Narayana Karimunjawa</h2>
+                <div class="section-eyebrow">About Us</div>
+                <h2 class="section-title">Discover Narayana</h2>
                 <div class="divider"></div>
-                <p class="about-lead">Hotel baru di Karimunjawa dengan <strong>lokasi paling strategis</strong> — dekat kota, akses mudah, dan hanya beberapa langkah dari spot sunset terbaik di pulau.</p>
-                <p class="about-text">Narayana hadir dengan konsep bangunan unik yang memadukan kenyamanan modern dan ketenangan alam. Nikmati pemandangan gunung yang menakjubkan langsung dari hotel, suasana yang tenang jauh dari keramaian, namun tetap dekat dengan segala fasilitas yang Anda butuhkan.</p>
+                <p class="about-lead">A newly established retreat in the heart of Karimunjawa, <strong>perfectly positioned</strong> near town with effortless access to the island's finest sunset viewpoint and mountain panoramas.</p>
+                <p class="about-text">Narayana is designed around a distinctive architectural concept that harmonises modern comfort with the serenity of nature. Wake to breathtaking mountain views, unwind in tranquil surroundings far from the ordinary, yet remain moments away from everything the island has to offer.</p>
                 <div class="about-highlight">
                     <div class="about-highlight-icon"><i class="fas fa-gem"></i></div>
                     <div>
-                        <strong>Semua Kebutuhan Liburan dalam Satu Tempat</strong>
-                        <p>Kami menyediakan layanan lengkap — dari hotel dengan pemandangan spektakuler, restoran dengan hidangan khas laut segar, rental motor untuk eksplorasi pulau, hingga trip laut ke spot snorkeling dan pulau-pulau tersembunyi. Semua ada di satu tempat, tanpa repot.</p>
+                        <strong>Your Complete Island Experience — All in One Place</strong>
+                        <p>Everything you need for the perfect Karimunjawa holiday, under one roof. From a hotel with spectacular views and a restaurant serving the freshest seafood, to motorbike rentals for island exploration and curated ocean trips to hidden snorkelling spots — we bring it all together, effortlessly.</p>
                     </div>
                 </div>
             </div>
@@ -134,43 +134,43 @@ require_once __DIR__ . '/includes/header.php';
                 <div class="about-feature-item fade-in">
                     <div class="about-feature-icon"><i class="fas fa-map-marker-alt"></i></div>
                     <div>
-                        <h4>Lokasi Strategis</h4>
-                        <p>Dekat pusat kota Karimunjawa, akses mudah ke pelabuhan, pasar, dan semua destinasi wisata utama.</p>
+                        <h4>Prime Location</h4>
+                        <p>Steps from the town centre with easy access to the harbour, local market, and every major island destination.</p>
                     </div>
                 </div>
                 <div class="about-feature-item fade-in">
                     <div class="about-feature-icon"><i class="fas fa-mountain"></i></div>
                     <div>
-                        <h4>Pemandangan Gunung & Sunset</h4>
-                        <p>Bangunan unik dengan view gunung yang memukau dan dekat spot sunset terbaik di pulau.</p>
+                        <h4>Mountain Views & Sunset</h4>
+                        <p>A unique vantage point offering sweeping mountain panoramas and proximity to the island's most stunning sunset spot.</p>
                     </div>
                 </div>
                 <div class="about-feature-item fade-in">
                     <div class="about-feature-icon"><i class="fas fa-motorcycle"></i></div>
                     <div>
-                        <h4>Rental Motor</h4>
-                        <p>Jelajahi Karimunjawa dengan mudah — sewa motor langsung di hotel, siap pakai kapan saja.</p>
+                        <h4>Motorbike Rental</h4>
+                        <p>Explore Karimunjawa at your own pace — rent a motorbike directly from the hotel, ready whenever you are.</p>
                     </div>
                 </div>
                 <div class="about-feature-item fade-in">
                     <div class="about-feature-icon"><i class="fas fa-ship"></i></div>
                     <div>
-                        <h4>Trip Laut & Snorkeling</h4>
-                        <p>Paket wisata laut lengkap — island hopping, snorkeling di terumbu karang, dan pantai tersembunyi.</p>
+                        <h4>Ocean Trips & Snorkelling</h4>
+                        <p>Curated sea excursions including island hopping, coral reef snorkelling, and visits to secluded hidden beaches.</p>
                     </div>
                 </div>
                 <div class="about-feature-item fade-in">
                     <div class="about-feature-icon"><i class="fas fa-utensils"></i></div>
                     <div>
-                        <h4>Hotel & Resto</h4>
-                        <p>Kamar nyaman dengan restoran in-house menyajikan seafood segar dan masakan lokal autentik.</p>
+                        <h4>Hotel & Restaurant</h4>
+                        <p>Comfortable rooms paired with an in-house restaurant serving freshly caught seafood and authentic local cuisine.</p>
                     </div>
                 </div>
                 <div class="about-feature-item fade-in">
                     <div class="about-feature-icon"><i class="fas fa-spa"></i></div>
                     <div>
-                        <h4>Tenang & Nyaman</h4>
-                        <p>Arsitektur unik yang didesain untuk ketenangan, dikelilingi alam tropis yang asri dan segar.</p>
+                        <h4>Peaceful & Comfortable</h4>
+                        <p>Thoughtfully designed architecture crafted for tranquillity, enveloped by lush tropical greenery and fresh island air.</p>
                     </div>
                 </div>
             </div>
