@@ -121,8 +121,17 @@ try {
             PDO::ATTR_EMULATE_PREPARES => false,
         ]
     );
-    
-    // Koneksi ke Database WEBSITE (untuk simpan booking customer)
+} catch (PDOException $e) {
+    if (DEBUG_MODE) {
+        die('Database Connection Error (System): ' . $e->getMessage());
+    } else {
+        die('Service temporarily unavailable. Please try again later.');
+    }
+}
+
+// Koneksi ke Database WEBSITE (opsional — untuk booking customer)
+$pdo_web = null;
+try {
     $pdo_web = new PDO(
         'mysql:host=' . DB_WEB_HOST . ';port=' . DB_WEB_PORT . ';dbname=' . DB_WEB_NAME . ';charset=utf8mb4',
         DB_WEB_USER, DB_WEB_PASS,
@@ -133,10 +142,9 @@ try {
         ]
     );
 } catch (PDOException $e) {
+    // Web database belum ada — tidak fatal, homepage tetap bisa jalan
     if (DEBUG_MODE) {
-        die('Database Connection Error: ' . $e->getMessage());
-    } else {
-        die('Service temporarily unavailable. Please try again later.');
+        error_log('Web Database not available: ' . $e->getMessage());
     }
 }
 
