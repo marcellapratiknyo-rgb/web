@@ -24,24 +24,27 @@ $heroTitle = $hero['web_hero_title'] ?? 'Where the Ocean<br>Meets <em>Tranquilit
 $heroSubtitle = $hero['web_hero_subtitle'] ?? 'Escape to our island resort surrounded by crystal-clear waters, pristine beaches, and the serenity of an untouched tropical paradise.';
 
 // Room types with availability
+$today = date('Y-m-d');
+$tomorrow = date('Y-m-d', strtotime('+1 day'));
 $roomTypes = dbFetchAll("
     SELECT rt.*, 
            COUNT(r.id) as total_rooms,
-           SUM(CASE WHEN r.status = 'available' THEN 1 ELSE 0 END) as available_rooms
+           SUM(CASE WHEN r.id NOT IN (
+               SELECT b.room_id FROM bookings b 
+               WHERE b.status IN ('pending','confirmed','checked_in')
+               AND b.check_in_date <= ? AND b.check_out_date > ?
+           ) THEN 1 ELSE 0 END) as available_rooms
     FROM room_types rt
     LEFT JOIN rooms r ON rt.id = r.room_type_id
     GROUP BY rt.id
     ORDER BY rt.base_price DESC
-");
+", [$today, $today]);
 
 // Today's stats
-$today = date('Y-m-d');
-$tomorrow = date('Y-m-d', strtotime('+1 day'));
 $totalRooms = dbFetch("SELECT COUNT(*) as c FROM rooms")['c'] ?? 0;
 $availableNow = dbFetch("
     SELECT COUNT(*) as c FROM rooms 
-    WHERE status IN ('available','cleaning')
-    AND id NOT IN (
+    WHERE id NOT IN (
         SELECT room_id FROM bookings 
         WHERE status IN ('pending','confirmed','checked_in')
         AND check_in_date <= ? AND check_out_date > ?
