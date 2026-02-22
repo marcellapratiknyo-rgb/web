@@ -7,6 +7,24 @@
     <meta name="keywords" content="Karimunjawa hotel, island resort, luxury accommodation, Narayana Karimunjawa">
     <title><?= isset($pageTitle) ? $pageTitle . ' — ' . SITE_NAME : SITE_NAME . ' — ' . SITE_TAGLINE ?></title>
 
+    <?php
+    // Load favicon from database
+    $faviconPath = '';
+    try {
+        $favRow = dbFetch("SELECT setting_value FROM settings WHERE setting_key = 'web_favicon'");
+        if ($favRow && !empty($favRow['setting_value'])) {
+            $faviconPath = $favRow['setting_value'];
+        }
+    } catch (Exception $e) {}
+    if (!empty($faviconPath)):
+        $ext = strtolower(pathinfo($faviconPath, PATHINFO_EXTENSION));
+        $mimeMap = ['ico' => 'image/x-icon', 'png' => 'image/png', 'svg' => 'image/svg+xml', 'jpg' => 'image/jpeg', 'jpeg' => 'image/jpeg', 'webp' => 'image/webp'];
+        $mimeType = $mimeMap[$ext] ?? 'image/png';
+    ?>
+    <link rel="icon" type="<?= $mimeType ?>" href="<?= BASE_URL ?>/<?= htmlspecialchars($faviconPath) ?>">
+    <link rel="shortcut icon" type="<?= $mimeType ?>" href="<?= BASE_URL ?>/<?= htmlspecialchars($faviconPath) ?>">
+    <?php endif; ?>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
