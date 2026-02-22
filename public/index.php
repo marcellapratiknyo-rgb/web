@@ -10,6 +10,19 @@ require_once $_cfg;
 
 $currentPage = 'home';
 
+// Load hero settings from database
+$heroSettings = dbFetchAll("SELECT setting_key, setting_value FROM settings WHERE setting_key LIKE 'web_hero_%'");
+$hero = [];
+foreach ($heroSettings as $setting) {
+    $hero[$setting['setting_key']] = $setting['setting_value'];
+}
+
+// Extract hero values with defaults
+$heroBg = $hero['web_hero_background'] ?? '';
+$heroAccent = $hero['web_hero_accent'] ?? 'Karimunjawa Islands · Indonesia';
+$heroTitle = $hero['web_hero_title'] ?? 'Where the Ocean<br>Meets <em>Tranquility</em>';
+$heroSubtitle = $hero['web_hero_subtitle'] ?? 'Escape to our island resort surrounded by crystal-clear waters, pristine beaches, and the serenity of an untouched tropical paradise.';
+
 // Room types with availability
 $roomTypes = dbFetchAll("
     SELECT rt.*, 
@@ -37,17 +50,32 @@ $availableNow = dbFetch("
 
 $roomIcons = ['King' => '👑', 'Queen' => '🌙', 'Twin' => '🛏️'];
 
-include __DIR__ . '/includes/header.php';
+// Load room gallery images from settings
+$gallerySettings = dbFetchAll("SELECT setting_key, setting_value FROM settings WHERE setting_key LIKE 'web_room_gallery_%' OR setting_key LIKE 'web_room_primary_%'");
+$roomGalleries = [];
+$roomPrimary = [];
+foreach ($gallerySettings as $gs) {
+    if (strpos($gs['setting_key'], 'web_room_gallery_') === 0) {
+        $type = str_replace('web_room_gallery_', '', $gs['setting_key']);
+        $roomGalleries[ucfirst($type)] = json_decode($gs['setting_value'], true) ?: [];
+    }
+    if (strpos($gs['setting_key'], 'web_room_primary_') === 0) {
+        $type = str_replace('web_room_primary_', '', $gs['setting_key']);
+        $roomPrimary[ucfirst($type)] = $gs['setting_value'];
+    }
+}
+
+require_once __DIR__ . '/includes/header.php';
 ?>
 
 <!-- Hero -->
 <section class="hero">
-    <div class="hero-bg"></div>
+    <div class="hero-bg" <?php if (!empty($heroBg)): ?>style="background-image: url('<?= BASE_URL ?>/<?= htmlspecialchars($heroBg) ?>');"<?php endif; ?>></div>
     <div class="container">
         <div class="hero-content">
-            <div class="hero-eyebrow">Karimunjawa Islands · Indonesia</div>
-            <h1>Where the Ocean<br>Meets <em>Tranquility</em></h1>
-            <p class="hero-text">Escape to our island resort surrounded by crystal-clear waters, pristine beaches, and the serenity of an untouched tropical paradise.</p>
+            <div class="hero-eyebrow"><?= htmlspecialchars($heroAccent) ?></div>
+            <h1><?= $heroTitle ?></h1>
+            <p class="hero-text"><?= htmlspecialchars($heroSubtitle) ?></p>
             <div class="btn-group">
                 <a href="<?= BASE_URL ?>/booking.php" class="btn btn-white btn-lg">Check Availability</a>
                 <a href="<?= BASE_URL ?>/rooms.php" class="btn btn-outline-white btn-lg">View Rooms</a>
@@ -62,16 +90,16 @@ include __DIR__ . '/includes/header.php';
         <div class="booking-bar-inner">
             <form class="booking-bar-form" action="<?= BASE_URL ?>/booking.php" method="GET">
                 <div class="form-group">
-                    <label>Check-in</label>
-                    <input type="date" name="check_in" min="<?= $today ?>" value="<?= $today ?>" required>
+                    <label for="bb_checkin">Check-in</label>
+                    <input type="date" id="bb_checkin" name="check_in" min="<?= $today ?>" value="<?= $today ?>" required>
                 </div>
                 <div class="form-group">
-                    <label>Check-out</label>
-                    <input type="date" name="check_out" min="<?= $tomorrow ?>" value="<?= $tomorrow ?>" required>
+                    <label for="bb_checkout">Check-out</label>
+                    <input type="date" id="bb_checkout" name="check_out" min="<?= $tomorrow ?>" value="<?= $tomorrow ?>" required>
                 </div>
                 <div class="form-group">
-                    <label>Guests</label>
-                    <select name="guests">
+                    <label for="bb_guests">Guests</label>
+                    <select id="bb_guests" name="guests">
                         <option value="1">1 Guest</option>
                         <option value="2" selected>2 Guests</option>
                         <option value="3">3 Guests</option>
@@ -97,7 +125,7 @@ include __DIR__ . '/includes/header.php';
         <div class="rooms-grid">
             <?php foreach ($roomTypes as $room):
                 $amenities = $room['amenities'] ? explode(',', $room['amenities']) : [];
-                $icon = $roomIcons[$room['type_name']] ?? '🏨';
+                $icon = $roomIcons[trim($room['type_name'])] ?? '🏨';
                 $avail = (int)$room['available_rooms'];
                 $total = (int)$room['total_rooms'];
                 
@@ -105,10 +133,35 @@ include __DIR__ . '/includes/header.php';
                 elseif ($avail > 0) { $ac = 'limited'; $at = 'Only ' . $avail . ' Left'; }
                 else { $ac = 'full'; $at = 'Fully Booked'; }
             ?>
+            <?php
+                $typeName = trim($room['type_name']);
+                $gallery = $roomGalleries[$typeName] ?? [];
+                $primary = $roomPrimary[$typeName] ?? '';
+                // If primary is set, put it first
+                if ($primary && in_array($primary, $gallery)) {
+                    $gallery = array_values(array_diff($gallery, [$primary]));
+                    array_unshift($gallery, $primary);
+                }
+            ?>
             <div class="room-card fade-in">
-                <div class="room-card-image">
-                    <span class="room-type-badge"><?= htmlspecialchars($room['type_name']) ?></span>
-                    <div class="room-visual"><?= $icon ?></div>
+                <div class="room-card-image <?= count($gallery) > 1 ? 'has-gallery' : '' ?>" data-total="<?= count($gallery) ?>">
+                    <span class="room-type-badge"><?= htmlspecialchars($typeName) ?></span>
+                    <?php if (!empty($gallery)): ?>
+                        <?php foreach ($gallery as $gi => $gImg): ?>
+                        <div class="room-slide <?= $gi === 0 ? 'active' : '' ?>" style="background-image: url('<?= BASE_URL ?>/<?= htmlspecialchars($gImg) ?>');"></div>
+                        <?php endforeach; ?>
+                        <?php if (count($gallery) > 1): ?>
+                        <button class="room-nav room-nav-prev" onclick="slideRoom(this,-1)"><i class="fas fa-chevron-left"></i></button>
+                        <button class="room-nav room-nav-next" onclick="slideRoom(this,1)"><i class="fas fa-chevron-right"></i></button>
+                        <div class="room-dots">
+                            <?php for ($di = 0; $di < count($gallery); $di++): ?>
+                            <span class="room-dot <?= $di === 0 ? 'active' : '' ?>" onclick="goSlide(this,<?= $di ?>)"></span>
+                            <?php endfor; ?>
+                        </div>
+                        <?php endif; ?>
+                    <?php else: ?>
+                        <div class="room-visual"><?= $icon ?></div>
+                    <?php endif; ?>
                 </div>
                 <div class="room-card-body">
                     <h3><?= htmlspecialchars($room['type_name']) ?> Room</h3>
@@ -125,7 +178,7 @@ include __DIR__ . '/includes/header.php';
                         <div class="room-price"><?= formatCurrency($room['base_price']) ?><small>/night</small></div>
                         <span class="avail-badge <?= $ac ?>"><span class="avail-dot"></span><?= $at ?></span>
                     </div>
-                    <div style="margin-top:16px;">
+                    <div class="room-book-btn">
                         <a href="<?= BASE_URL ?>/booking.php?room_type=<?= $room['id'] ?>" class="btn btn-primary btn-block">Book This Room</a>
                     </div>
                 </div>
@@ -256,3 +309,52 @@ include __DIR__ . '/includes/header.php';
 </section>
 
 <?php include __DIR__ . '/includes/footer.php'; ?>
+
+<script>
+// Room gallery slider
+function slideRoom(btn, dir) {
+    const container = btn.closest('.room-card-image');
+    const slides = container.querySelectorAll('.room-slide');
+    const dots = container.querySelectorAll('.room-dot');
+    let current = [...slides].findIndex(s => s.classList.contains('active'));
+    slides[current].classList.remove('active');
+    if (dots[current]) dots[current].classList.remove('active');
+    current = (current + dir + slides.length) % slides.length;
+    slides[current].classList.add('active');
+    if (dots[current]) dots[current].classList.add('active');
+}
+function goSlide(dot, idx) {
+    const container = dot.closest('.room-card-image');
+    const slides = container.querySelectorAll('.room-slide');
+    const dots = container.querySelectorAll('.room-dot');
+    slides.forEach(s => s.classList.remove('active'));
+    dots.forEach(d => d.classList.remove('active'));
+    slides[idx].classList.add('active');
+    dots[idx].classList.add('active');
+}
+
+// Touch swipe support for room gallery
+document.querySelectorAll('.room-card-image.has-gallery').forEach(card => {
+    let startX = 0, startY = 0, distX = 0;
+    card.addEventListener('touchstart', e => {
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+    }, { passive: true });
+    card.addEventListener('touchmove', e => {
+        distX = e.touches[0].clientX - startX;
+    }, { passive: true });
+    card.addEventListener('touchend', () => {
+        if (Math.abs(distX) > 40) {
+            const slides = card.querySelectorAll('.room-slide');
+            const dots = card.querySelectorAll('.room-dot');
+            let current = [...slides].findIndex(s => s.classList.contains('active'));
+            slides[current].classList.remove('active');
+            if (dots[current]) dots[current].classList.remove('active');
+            current = (current + (distX < 0 ? 1 : -1) + slides.length) % slides.length;
+            slides[current].classList.add('active');
+            if (dots[current]) dots[current].classList.add('active');
+        }
+        distX = 0;
+    }, { passive: true });
+});
+</script>

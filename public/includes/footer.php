@@ -62,12 +62,28 @@ const nav = document.getElementById('mainNav');
 window.addEventListener('scroll', () => nav.classList.toggle('scrolled', window.scrollY > 50));
 if (window.scrollY > 50) nav.classList.add('scrolled');
 
-// Mobile nav
+// Mobile nav with overlay
 const navToggle = document.getElementById('navToggle');
 const navLinks = document.getElementById('navLinks');
-navToggle?.addEventListener('click', () => navLinks.classList.toggle('open'));
-document.querySelectorAll('#navLinks a:not(.nav-book-btn)').forEach(link => {
-    link.addEventListener('click', () => navLinks.classList.remove('open'));
+// Create overlay element
+const navOverlay = document.createElement('div');
+navOverlay.className = 'nav-overlay';
+document.body.appendChild(navOverlay);
+
+function toggleMobileNav() {
+    const isOpen = navLinks.classList.toggle('open');
+    navOverlay.classList.toggle('active', isOpen);
+    document.body.style.overflow = isOpen ? 'hidden' : '';
+}
+function closeMobileNav() {
+    navLinks.classList.remove('open');
+    navOverlay.classList.remove('active');
+    document.body.style.overflow = '';
+}
+navToggle?.addEventListener('click', toggleMobileNav);
+navOverlay.addEventListener('click', closeMobileNav);
+document.querySelectorAll('#navLinks a').forEach(link => {
+    link.addEventListener('click', closeMobileNav);
 });
 
 // Fade-in observer

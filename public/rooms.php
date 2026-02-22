@@ -11,6 +11,26 @@ require_once $_cfg;
 $currentPage = 'rooms';
 $pageTitle = 'Rooms';
 
+// Load room galleries from settings
+$gallerySettings = dbFetchAll("SELECT setting_key, setting_value FROM settings WHERE setting_key LIKE 'web_room_gallery_%'");
+$roomGalleries = [];
+foreach ($gallerySettings as $setting) {
+    $roomType = str_replace('web_room_gallery_', '', $setting['setting_key']);
+    $roomGalleries[ucfirst($roomType)] = json_decode($setting['setting_value'] ?? '[]', true) ?: [];
+}
+
+// Load room descriptions from settings
+$roomDescSettings = dbFetchAll("SELECT setting_key, setting_value FROM settings WHERE setting_key LIKE 'web_room_desc_%'");
+$roomDescriptions = [
+    'King' => 'Our finest accommodation featuring a luxurious king-size bed, elegant furnishings, and panoramic views. Perfect for couples seeking the ultimate island retreat.',
+    'Queen' => 'A beautifully appointed room with a comfortable queen-size bed and modern amenities. Enjoy serene island views and the gentle sound of ocean waves.',
+    'Twin' => 'Ideal for friends or family, our twin rooms feature two comfortable single beds in a spacious setting with all the comforts for a relaxing stay.',
+];
+foreach ($roomDescSettings as $setting) {
+    $roomType = str_replace('web_room_desc_', '', $setting['setting_key']);
+    $roomDescriptions[ucfirst($roomType)] = $setting['setting_value'];
+}
+
 $roomTypes = dbFetchAll("
     SELECT rt.*,
            COUNT(r.id) as total_rooms,
@@ -29,12 +49,6 @@ $rooms = dbFetchAll("
 ");
 
 $roomIcons = ['King' => '👑', 'Queen' => '🌙', 'Twin' => '🛏️'];
-
-$roomDescriptions = [
-    'King' => 'Our finest accommodation featuring a luxurious king-size bed, elegant furnishings, and panoramic views. Perfect for couples seeking the ultimate island retreat.',
-    'Queen' => 'A beautifully appointed room with a comfortable queen-size bed and modern amenities. Enjoy serene island views and the gentle sound of ocean waves.',
-    'Twin' => 'Ideal for friends or family, our twin rooms feature two comfortable single beds in a spacious setting with all the comforts for a relaxing stay.',
-];
 
 include __DIR__ . '/includes/header.php';
 ?>
@@ -63,12 +77,18 @@ include __DIR__ . '/includes/header.php';
             else { $ac = 'full'; $at = 'Fully booked today'; }
 
             $typeRooms = array_filter($rooms, fn($r) => $r['room_type_id'] == $room['id']);
+            $gallery = $roomGalleries[$room['type_name']] ?? [];
+            $firstImage = !empty($gallery) ? $gallery[0] : null;
         ?>
         <div class="room-detail <?= $reverse ? 'reverse' : '' ?> fade-in">
             <!-- Image -->
             <div class="room-detail-image">
-                <span class="room-emoji"><?= $icon ?></span>
-                <div style="position:absolute; bottom:16px; left:16px;">
+                <?php if ($firstImage): ?>
+                    <img src="<?= BASE_URL ?>/<?= htmlspecialchars($firstImage) ?>" alt="<?= htmlspecialchars($room['type_name']) ?> Room" style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0;">
+                <?php else: ?>
+                    <span class="room-emoji"><?= $icon ?></span>
+                <?php endif; ?>
+                <div style="position:absolute; bottom:16px; left:16px; z-index: 2;">
                     <span class="avail-badge <?= $ac ?>"><span class="avail-dot"></span><?= $at ?></span>
                 </div>
             </div>
