@@ -8,6 +8,7 @@ deployment:
     - /bin/cp -f $REPOPATH/public/booking.php $DEPLOYPATH/booking.php
     - /bin/cp -f $REPOPATH/public/contact.php $DEPLOYPATH/contact.php
     - /bin/cp -f $REPOPATH/public/confirmation.php $DEPLOYPATH/confirmation.php
+    - /bin/cp -f $REPOPATH/public/test.php $DEPLOYPATH/test.php
     - /bin/cp -f $REPOPATH/public/.htaccess.production $DEPLOYPATH/.htaccess
     # API
     - /bin/mkdir -p $DEPLOYPATH/api
@@ -25,3 +26,19 @@ deployment:
     - /bin/mkdir -p $DEPLOYPATH/config
     - /bin/cp -f $REPOPATH/config/config.php $DEPLOYPATH/config/config.php
     - /bin/mkdir -p $DEPLOYPATH/logs
+    # Fix permissions (644 for files, 755 for directories)
+    - /bin/chmod 755 $DEPLOYPATH
+    - /bin/chmod 755 $DEPLOYPATH/api
+    - /bin/chmod 755 $DEPLOYPATH/assets
+    - /bin/chmod 755 $DEPLOYPATH/assets/css
+    - /bin/chmod 755 $DEPLOYPATH/assets/images
+    - /bin/chmod 755 $DEPLOYPATH/assets/js
+    - /bin/chmod 755 $DEPLOYPATH/includes
+    - /bin/chmod 755 $DEPLOYPATH/config
+    - /bin/chmod 755 $DEPLOYPATH/logs
+    - /bin/chmod 644 $DEPLOYPATH/*.php
+    - /bin/chmod 644 $DEPLOYPATH/.htaccess
+    - /bin/chmod 644 $DEPLOYPATH/assets/css/style.css
+    - /bin/chmod 644 $DEPLOYPATH/includes/*.php
+    - /bin/chmod 644 $DEPLOYPATH/config/config.php
+    - /bin/chmod 644 $DEPLOYPATH/api/*.php

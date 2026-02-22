@@ -1,24 +1,33 @@
-RewriteEngine On
-RewriteBase /
+# Enable Rewrite Engine
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
 
-# Force HTTPS
-RewriteCond %{HTTPS} off
-RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+    # Force HTTPS
+    RewriteCond %{HTTPS} off
+    RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
-# Remove www (optional - uncomment if you prefer non-www)
-# RewriteCond %{HTTP_HOST} ^www\.narayanakarimunjawa\.com [NC]
-# RewriteRule ^(.*)$ https://narayanakarimunjawa.com/$1 [L,R=301]
+    # Clean URLs — add .php if the file exists
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME}.php -f
+    RewriteRule ^(.*)$ $1.php [QSA,L]
 
-# Clean URLs — add .php if the file exists
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteCond %{REQUEST_FILENAME}.php -f
-RewriteRule ^(.*)$ $1.php [QSA,L]
+    # Block access to config and logs folders
+    RewriteRule ^config/ - [F,L]
+    RewriteRule ^logs/ - [F,L]
+</IfModule>
 
-# Fallback to index.php
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.*)$ index.php?url=$1 [QSA,L]
+# Block access to sensitive files (Apache 2.4 compatible)
+<FilesMatch "\.(sql|log|env|git|md)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
 
 # Security Headers
 <IfModule mod_headers.c>
@@ -27,16 +36,6 @@ RewriteRule ^(.*)$ index.php?url=$1 [QSA,L]
     Header set X-XSS-Protection "1; mode=block"
     Header set Referrer-Policy "strict-origin-when-cross-origin"
 </IfModule>
-
-# Block access to sensitive files
-<FilesMatch "\.(sql|log|env|git|md)$">
-    Order allow,deny
-    Deny from all
-</FilesMatch>
-
-# Block access to config and logs folders
-RewriteRule ^config/ - [F,L]
-RewriteRule ^logs/ - [F,L]
 
 # Cache static assets
 <IfModule mod_expires.c>
