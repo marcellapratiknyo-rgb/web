@@ -8,21 +8,39 @@
 $isLocal = (strpos($_SERVER['HTTP_HOST'] ?? 'localhost', 'localhost') !== false || 
             strpos($_SERVER['HTTP_HOST'] ?? '127.0.0.1', '127.0.0.1') !== false);
 
-// Database Configuration — connects to MAIN HOTEL SYSTEM database
+// Database Configuration — DUAL DATABASE SETUP
+// Database Sistem: untuk ambil data master (room types, harga, occupancy) - READ ONLY
+// Database Website: untuk simpan booking customer, payment - READ WRITE
+
 if ($isLocal) {
+    // Database SISTEM ADF (untuk data master room, harga, occupancy)
     define('DB_HOST', 'localhost');
     define('DB_USER', 'root');
     define('DB_PASS', '');
-    define('DB_NAME', 'adf_narayana_hotel');   // Main hotel system DB
+    define('DB_NAME', 'adf_narayana_hotel');   // Sistem hotel management
     define('DB_PORT', 3306);
+    
+    // Database WEBSITE (untuk booking customer, payment)
+    define('DB_WEB_HOST', 'localhost');
+    define('DB_WEB_USER', 'root');
+    define('DB_WEB_PASS', '');
+    define('DB_WEB_NAME', 'adf_web_narayana'); // Website booking database
+    define('DB_WEB_PORT', 3306);
 } else {
-    // PRODUCTION — narayanakarimunjawa.com (same hosting as adf_system)
-    // Database yang sama dengan adf_system hotel module
+    // PRODUCTION — narayanakarimunjawa.com
+    // Database SISTEM ADF (untuk data master)
     define('DB_HOST', 'localhost');
-    define('DB_USER', 'adfb2574_adfsystem');    // Same user as adf_system
-    define('DB_PASS', '@Nnoc2025');             // Same password as adf_system
-    define('DB_NAME', 'adfb2574_narayana_hotel'); // Hotel database on hosting
+    define('DB_USER', 'adfb2574_adfsystem');
+    define('DB_PASS', '@Nnoc2025');
+    define('DB_NAME', 'adfb2574_narayana_hotel'); // Sistem hotel management
     define('DB_PORT', 3306);
+    
+    // Database WEBSITE (untuk booking customer)
+    define('DB_WEB_HOST', 'localhost');
+    define('DB_WEB_USER', 'adfb2574_adfsystem');
+    define('DB_WEB_PASS', '@Nnoc2025');
+    define('DB_WEB_NAME', 'adfb2574_web_narayana'); // Website booking database
+    define('DB_WEB_PORT', 3306);
 }
 
 // Site Configuration
@@ -88,11 +106,26 @@ if (!is_dir(__DIR__ . '/../logs')) {
     @mkdir(__DIR__ . '/../logs', 0755, true);
 }
 
-// PDO Database Connection — direct to main hotel system
+// PDO Database Connections — DUAL DATABASE SETUP
+// $pdo → Database SISTEM (room types, rooms, harga) - READ ONLY
+// $pdo_web → Database WEBSITE (bookings, payments, guests) - READ WRITE
+
 try {
+    // Koneksi ke Database SISTEM (untuk ambil data master)
     $pdo = new PDO(
         'mysql:host=' . DB_HOST . ';port=' . DB_PORT . ';dbname=' . DB_NAME . ';charset=utf8mb4',
         DB_USER, DB_PASS,
+        [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_EMULATE_PREPARES => false,
+        ]
+    );
+    
+    // Koneksi ke Database WEBSITE (untuk simpan booking customer)
+    $pdo_web = new PDO(
+        'mysql:host=' . DB_WEB_HOST . ';port=' . DB_WEB_PORT . ';dbname=' . DB_WEB_NAME . ';charset=utf8mb4',
+        DB_WEB_USER, DB_WEB_PASS,
         [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
@@ -107,7 +140,9 @@ try {
     }
 }
 
-// Helper Functions
+// Helper Functions — DUAL DATABASE SUPPORT
+
+// === Database SISTEM (room types, harga, occupancy) - READ ONLY ===
 function dbQuery($sql, $params = []) {
     global $pdo;
     $stmt = $pdo->prepare($sql);
@@ -123,23 +158,48 @@ function dbFetchAll($sql, $params = []) {
     return dbQuery($sql, $params)->fetchAll();
 }
 
-function dbInsert($table, $data) {
-    global $pdo;
+// === Database WEBSITE (bookings, payments, guests) - READ WRITE ===
+function dbWebQuery($sql, $params = []) {
+    global $pdo_web;
+    $stmt = $pdo_web->prepare($sql);
+    $stmt->execute($params);
+    return $stmt;
+}
+
+function dbWebFetch($sql, $params = []) {
+    return dbWebQuery($sql, $params)->fetch();
+}
+
+function dbWebFetchAll($sql, $params = []) {
+    return dbWebQuery($sql, $params)->fetchAll();
+}
+
+function dbWebInsert($table, $data) {
+    global $pdo_web;
     $cols = implode(', ', array_keys($data));
     $vals = implode(', ', array_fill(0, count($data), '?'));
     $sql = "INSERT INTO $table ($cols) VALUES ($vals)";
-    $stmt = $pdo->prepare($sql);
+    $stmt = $pdo_web->prepare($sql);
     $stmt->execute(array_values($data));
-    return $pdo->lastInsertId();
+    return $pdo_web->lastInsertId();
 }
 
-function dbUpdate($table, $data, $where, $whereParams = []) {
-    global $pdo;
+function dbWebUpdate($table, $data, $where, $whereParams = []) {
+    global $pdo_web;
     $set = implode(', ', array_map(fn($k) => "$k = ?", array_keys($data)));
     $sql = "UPDATE $table SET $set WHERE $where";
     $params = array_merge(array_values($data), $whereParams);
-    $stmt = $pdo->prepare($sql);
+    $stmt = $pdo_web->prepare($sql);
     return $stmt->execute($params);
+}
+
+// === BACKWARD COMPATIBILITY (untuk data website) ===
+function dbInsert($table, $data) {
+    return dbWebInsert($table, $data);
+}
+
+function dbUpdate($table, $data, $where, $whereParams = []) {
+    return dbWebUpdate($table, $data, $where, $whereParams);
 }
 
 function formatCurrency($amount) {
