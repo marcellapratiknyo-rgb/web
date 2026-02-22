@@ -112,6 +112,72 @@ require_once __DIR__ . '/includes/header.php';
     </div>
 </div>
 
+<!-- About Narayana -->
+<section class="section about-section">
+    <div class="container">
+        <div class="about-layout fade-in">
+            <div class="about-content">
+                <div class="section-eyebrow">Tentang Kami</div>
+                <h2 class="section-title">Narayana Karimunjawa</h2>
+                <div class="divider"></div>
+                <p class="about-lead">Hotel baru di Karimunjawa dengan <strong>lokasi paling strategis</strong> — dekat kota, akses mudah, dan hanya beberapa langkah dari spot sunset terbaik di pulau.</p>
+                <p class="about-text">Narayana hadir dengan konsep bangunan unik yang memadukan kenyamanan modern dan ketenangan alam. Nikmati pemandangan gunung yang menakjubkan langsung dari hotel, suasana yang tenang jauh dari keramaian, namun tetap dekat dengan segala fasilitas yang Anda butuhkan.</p>
+                <div class="about-highlight">
+                    <div class="about-highlight-icon"><i class="fas fa-gem"></i></div>
+                    <div>
+                        <strong>Semua Kebutuhan Liburan dalam Satu Tempat</strong>
+                        <p>Kami menyediakan layanan lengkap — dari hotel dengan pemandangan spektakuler, restoran dengan hidangan khas laut segar, rental motor untuk eksplorasi pulau, hingga trip laut ke spot snorkeling dan pulau-pulau tersembunyi. Semua ada di satu tempat, tanpa repot.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="about-features">
+                <div class="about-feature-item fade-in">
+                    <div class="about-feature-icon"><i class="fas fa-map-marker-alt"></i></div>
+                    <div>
+                        <h4>Lokasi Strategis</h4>
+                        <p>Dekat pusat kota Karimunjawa, akses mudah ke pelabuhan, pasar, dan semua destinasi wisata utama.</p>
+                    </div>
+                </div>
+                <div class="about-feature-item fade-in">
+                    <div class="about-feature-icon"><i class="fas fa-mountain"></i></div>
+                    <div>
+                        <h4>Pemandangan Gunung & Sunset</h4>
+                        <p>Bangunan unik dengan view gunung yang memukau dan dekat spot sunset terbaik di pulau.</p>
+                    </div>
+                </div>
+                <div class="about-feature-item fade-in">
+                    <div class="about-feature-icon"><i class="fas fa-motorcycle"></i></div>
+                    <div>
+                        <h4>Rental Motor</h4>
+                        <p>Jelajahi Karimunjawa dengan mudah — sewa motor langsung di hotel, siap pakai kapan saja.</p>
+                    </div>
+                </div>
+                <div class="about-feature-item fade-in">
+                    <div class="about-feature-icon"><i class="fas fa-ship"></i></div>
+                    <div>
+                        <h4>Trip Laut & Snorkeling</h4>
+                        <p>Paket wisata laut lengkap — island hopping, snorkeling di terumbu karang, dan pantai tersembunyi.</p>
+                    </div>
+                </div>
+                <div class="about-feature-item fade-in">
+                    <div class="about-feature-icon"><i class="fas fa-utensils"></i></div>
+                    <div>
+                        <h4>Hotel & Resto</h4>
+                        <p>Kamar nyaman dengan restoran in-house menyajikan seafood segar dan masakan lokal autentik.</p>
+                    </div>
+                </div>
+                <div class="about-feature-item fade-in">
+                    <div class="about-feature-icon"><i class="fas fa-spa"></i></div>
+                    <div>
+                        <h4>Tenang & Nyaman</h4>
+                        <p>Arsitektur unik yang didesain untuk ketenangan, dikelilingi alam tropis yang asri dan segar.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
 <!-- Rooms -->
 <section class="section">
     <div class="container">
