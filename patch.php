@@ -28,6 +28,8 @@ $websiteFiles = [
     'public/includes/footer.php'               => 'includes/footer.php',
     'public/assets/css/style.css'              => 'assets/css/style.css',
     'public/api/create-booking.php'            => 'api/create-booking.php',
+    'public/robots.txt'                        => 'robots.txt',
+    'public/sitemap.xml'                       => 'sitemap.xml',
     'config/config.php'                        => 'config/config.php',
 ];
 
