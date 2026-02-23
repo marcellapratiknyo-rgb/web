@@ -1,58 +1,67 @@
 <?php
 /**
- * PATCH SCRIPT — Downloads missing files and updates deploy.php
- * Upload this to hosting root via cPanel File Manager
- * Run: https://narayanakarimunjawa.com/patch.php
- * Auto-deletes after running.
+ * DEPLOY PATCH — Download semua file dari GitHub ke hosting
+ * + Fix database room_types trailing spaces
+ * Upload ke: public_html/narayanakarimunjawa.com/
+ * Buka: https://narayanakarimunjawa.com/patch.php
  */
 header('Content-Type: text/html; charset=utf-8');
-echo '<h2>Patching Narayana...</h2>';
+echo '<h2>Deploying Narayana...</h2>';
 
-$GITHUB_RAW = 'https://raw.githubusercontent.com/marcellapratiknyo-rgb/web/main';
-
-// Files to patch
-$patchFiles = [
-    'public/assets/css/style.css' => 'assets/css/style.css',
-];
-
-// Create missing directories
-$dirs = ['uploads/destinations', 'uploads/logo', 'uploads/favicon'];
-foreach ($dirs as $d) {
-    $p = __DIR__ . '/' . $d;
-    if (!is_dir($p)) { @mkdir($p, 0755, true); echo "<p>✅ Created: $d/</p>"; }
+// Fix trailing spaces in room_types table
+try {
+    $dbName = 'adfb2574_narayana_hotel';
+    $dbUser = 'adfb2574_adfsystem';
+    $dbPass = '@Nnoc2025';
+    $pdo = new PDO("mysql:host=localhost;dbname=$dbName", $dbUser, $dbPass);
+    $pdo->exec("UPDATE room_types SET type_name = TRIM(type_name)");
+    echo "<p style='color:green'>✅ Database: room_types type_name trimmed</p>";
+} catch (Exception $e) {
+    echo "<p style='color:orange'>⚠️ DB fix skipped: " . $e->getMessage() . "</p>";
 }
 
-// Download and deploy files
-foreach ($patchFiles as $src => $dest) {
-    $url = $GITHUB_RAW . '/' . $src;
-    $ch = curl_init();
+$GITHUB = 'https://raw.githubusercontent.com/marcellapratiknyo-rgb/web/main';
+
+// Semua file yang perlu di-deploy (GitHub path => hosting path)
+$files = [
+    'public/index.php'                  => 'index.php',
+    'public/rooms.php'                  => 'rooms.php',
+    'public/booking.php'                => 'booking.php',
+    'public/contact.php'                => 'contact.php',
+    'public/confirmation.php'           => 'confirmation.php',
+    'public/destinations.php'           => 'destinations.php',
+    'public/includes/header.php'        => 'includes/header.php',
+    'public/includes/footer.php'        => 'includes/footer.php',
+    'public/assets/css/style.css'       => 'assets/css/style.css',
+    'public/api/create-booking.php'     => 'api/create-booking.php',
+];
+
+$ok = 0; $fail = 0;
+foreach ($files as $src => $dest) {
+    $ch = curl_init("$GITHUB/$src");
     curl_setopt_array($ch, [
-        CURLOPT_URL => $url,
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_FOLLOWLOCATION => true,
         CURLOPT_SSL_VERIFYPEER => false,
         CURLOPT_TIMEOUT => 30,
-        CURLOPT_USERAGENT => 'NarayanaPatch/1.0',
+        CURLOPT_USERAGENT => 'Patch/1.0',
     ]);
     $content = curl_exec($ch);
     $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
     
     if ($code === 200 && $content) {
-        $destPath = __DIR__ . '/' . $dest;
-        $dir = dirname($destPath);
-        if (!is_dir($dir)) @mkdir($dir, 0755, true);
-        file_put_contents($destPath, $content);
-        $size = strlen($content);
-        echo "<p style='color:green'>✅ $dest ($size bytes)</p>";
+        $path = __DIR__ . '/' . $dest;
+        @mkdir(dirname($path), 0755, true);
+        file_put_contents($path, $content);
+        echo "<p style='color:green'>✅ $dest (" . strlen($content) . " bytes)</p>";
+        $ok++;
     } else {
-        echo "<p style='color:red'>❌ Failed: $dest (HTTP $code)</p>";
+        echo "<p style='color:red'>❌ $dest (HTTP $code)</p>";
+        $fail++;
     }
 }
 
-echo '<h3>✅ Patch complete!</h3>';
-echo '<p><a href="/">← Go to Homepage</a> | <a href="/destinations.php">Destinations Page</a></p>';
-
-// Self-delete
+echo "<h3>✅ Done! $ok deployed, $fail failed</h3>";
+echo '<p><a href="/">← Homepage</a> | <a href="/rooms.php">Rooms</a></p>';
 @unlink(__FILE__);
-echo '<p style="color:gray;font-size:12px">patch.php auto-deleted.</p>';
