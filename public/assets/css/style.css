@@ -1088,9 +1088,12 @@ h3 { font-size: clamp(1.2rem, 2vw, 1.6rem); }
     background: 
         linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.5) 100%),
         linear-gradient(135deg, #1a3a5c, #2d5a7b);
+    background-size: cover;
+    background-position: center;
     color: var(--white);
     padding: 140px 0 60px;
     text-align: center;
+    position: relative;
 }
 
 .page-hero h1 {
@@ -2311,8 +2314,11 @@ textarea.form-control { resize: vertical; }
 /* Page Hero */
 .dest-page-hero {
     background: var(--dark);
+    background-size: cover;
+    background-position: center;
     padding: 140px 0 80px;
     text-align: center;
+    position: relative;
 }
 .dest-page-hero-content .section-eyebrow {
     color: var(--gold);

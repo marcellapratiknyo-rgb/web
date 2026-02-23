@@ -71,15 +71,24 @@ $rooms = dbFetchAll("
 
 $roomIcons = ['King' => '👑', 'Queen' => '🌙', 'Twin' => '🛏️'];
 
+// Load hero settings for rooms page
+$_heroRows = dbFetchAll("SELECT setting_key, setting_value FROM settings WHERE setting_key LIKE 'web_hero_rooms_%'");
+$_hero = [];
+foreach ($_heroRows as $_h) $_hero[$_h['setting_key']] = $_h['setting_value'];
+$heroEyebrow  = $_hero['web_hero_rooms_eyebrow']  ?? 'Accommodations';
+$heroTitle     = $_hero['web_hero_rooms_title']     ?? 'Our Rooms';
+$heroSubtitle  = $_hero['web_hero_rooms_subtitle']  ?? 'Thoughtfully designed spaces where island comfort meets refined elegance.';
+$heroBg        = $_hero['web_hero_rooms_background'] ?? '';
+
 include __DIR__ . '/includes/header.php';
 ?>
 
 <!-- Page Hero -->
-<section class="page-hero">
+<section class="page-hero"<?php if (!empty($heroBg)): ?> style="background: linear-gradient(180deg, rgba(0,0,0,0.4), rgba(0,0,0,0.6)), url('<?= BASE_URL ?>/<?= htmlspecialchars($heroBg) ?>') center/cover;"<?php endif; ?>>
     <div class="container">
-        <div class="section-eyebrow" style="color:var(--gold-light);">Accommodations</div>
-        <h1>Our Rooms</h1>
-        <p>Thoughtfully designed spaces where island comfort meets refined elegance.</p>
+        <div class="section-eyebrow" style="color:var(--gold-light);"><?= htmlspecialchars($heroEyebrow) ?></div>
+        <h1><?= $heroTitle ?></h1>
+        <p><?= htmlspecialchars($heroSubtitle) ?></p>
     </div>
 </section>
 

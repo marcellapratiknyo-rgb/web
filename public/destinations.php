@@ -38,6 +38,15 @@ if (isset($_GET['id'])) {
     }
 }
 
+// Load hero settings for destinations listing page
+$_heroRows = dbFetchAll("SELECT setting_key, setting_value FROM settings WHERE setting_key LIKE 'web_hero_dest_%'");
+$_heroD = [];
+foreach ($_heroRows as $_h) $_heroD[$_h['setting_key']] = $_h['setting_value'];
+$destHeroEyebrow  = $_heroD['web_hero_dest_eyebrow']  ?? 'Explore Karimunjawa';
+$destHeroTitle     = $_heroD['web_hero_dest_title']     ?? 'Discover the Island';
+$destHeroSubtitle  = $_heroD['web_hero_dest_subtitle']  ?? 'Your guide to the most breathtaking destinations and hidden gems of Karimunjawa — from pristine beaches and vibrant coral reefs to lush mangrove forests and unforgettable sunset spots.';
+$destHeroBg        = $_heroD['web_hero_dest_background'] ?? '';
+
 require_once __DIR__ . '/includes/header.php';
 ?>
 
@@ -115,12 +124,12 @@ require_once __DIR__ . '/includes/header.php';
 <!-- ============== DESTINATIONS LISTING PAGE ============== -->
 
 <!-- Hero -->
-<section class="dest-page-hero">
+<section class="dest-page-hero"<?php if (!empty($destHeroBg)): ?> style="background: linear-gradient(180deg, rgba(0,0,0,0.4), rgba(0,0,0,0.6)), url('<?= BASE_URL ?>/<?= htmlspecialchars($destHeroBg) ?>') center/cover;"<?php endif; ?>>
     <div class="container">
         <div class="dest-page-hero-content">
-            <div class="section-eyebrow">Explore Karimunjawa</div>
-            <h1 class="dest-page-title">Discover the Island</h1>
-            <p class="dest-page-desc">Your guide to the most breathtaking destinations and hidden gems of Karimunjawa — from pristine beaches and vibrant coral reefs to lush mangrove forests and unforgettable sunset spots.</p>
+            <div class="section-eyebrow"><?= htmlspecialchars($destHeroEyebrow) ?></div>
+            <h1 class="dest-page-title"><?= $destHeroTitle ?></h1>
+            <p class="dest-page-desc"><?= htmlspecialchars($destHeroSubtitle) ?></p>
         </div>
     </div>
 </section>
