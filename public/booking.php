@@ -32,7 +32,7 @@ if ($hasSearch && $checkIn && $checkOut && strtotime($checkIn) < strtotime($chec
                rt.max_occupancy, rt.amenities
         FROM rooms r
         JOIN room_types rt ON r.room_type_id = rt.id
-        WHERE r.status IN ('available', 'cleaning')
+        WHERE r.status NOT IN ('maintenance', 'blocked')
         AND rt.max_occupancy >= :guests
         AND r.id NOT IN (
             SELECT DISTINCT b.room_id 

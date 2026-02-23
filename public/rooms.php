@@ -31,22 +31,43 @@ foreach ($roomDescSettings as $setting) {
     $roomDescriptions[ucfirst($roomType)] = $setting['setting_value'];
 }
 
+$today = date('Y-m-d');
+$tomorrow = date('Y-m-d', strtotime('+1 day'));
+
 $roomTypes = dbFetchAll("
     SELECT rt.*,
            COUNT(r.id) as total_rooms,
-           SUM(CASE WHEN r.status = 'available' THEN 1 ELSE 0 END) as available_rooms
+           SUM(CASE 
+               WHEN r.status IN ('maintenance', 'blocked') THEN 0
+               WHEN r.id IN (
+                   SELECT DISTINCT b.room_id FROM bookings b 
+                   WHERE b.status IN ('checked_in', 'confirmed') 
+                   AND b.check_in_date < ? AND b.check_out_date > ?
+               ) THEN 0
+               ELSE 1
+           END) as available_rooms
     FROM room_types rt
     LEFT JOIN rooms r ON rt.id = r.room_type_id
     GROUP BY rt.id
     ORDER BY rt.base_price DESC
-");
+", [$tomorrow, $today]);
 
 $rooms = dbFetchAll("
-    SELECT r.*, rt.type_name, rt.base_price
+    SELECT r.*, rt.type_name, rt.base_price,
+           CASE 
+               WHEN r.status IN ('maintenance', 'blocked') THEN r.status
+               WHEN r.id IN (
+                   SELECT DISTINCT b.room_id FROM bookings b 
+                   WHERE b.status IN ('checked_in', 'confirmed')
+                   AND b.check_in_date < ? AND b.check_out_date > ?
+               ) THEN 'occupied'
+               WHEN r.status = 'cleaning' THEN 'cleaning'
+               ELSE 'available'
+           END as live_status
     FROM rooms r
     JOIN room_types rt ON r.room_type_id = rt.id
     ORDER BY r.room_number ASC
-");
+", [$tomorrow, $today]);
 
 $roomIcons = ['King' => '👑', 'Queen' => '🌙', 'Twin' => '🛏️'];
 
@@ -120,14 +141,14 @@ include __DIR__ . '/includes/header.php';
                     <div style="font-size:11px; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:var(--mid-gray); margin-bottom:8px;">Room Status</div>
                     <div class="room-status-grid">
                         <?php foreach ($typeRooms as $tr):
-                            $sc = match($tr['status']) {
+                            $sc = match($tr['live_status']) {
                                 'available' => 'available',
                                 'occupied' => 'occupied',
                                 'cleaning' => 'cleaning',
                                 default => 'maintenance'
                             };
                         ?>
-                        <div class="room-status-box <?= $sc ?>" title="Room <?= $tr['room_number'] ?> — <?= ucfirst($tr['status']) ?>">
+                        <div class="room-status-box <?= $sc ?>" title="Room <?= $tr['room_number'] ?> — <?= ucfirst($tr['live_status']) ?>">
                             <?= $tr['room_number'] ?>
                         </div>
                         <?php endforeach; ?>

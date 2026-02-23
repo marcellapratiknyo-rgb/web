@@ -34,6 +34,7 @@ $files = [
     'public/includes/footer.php'        => 'includes/footer.php',
     'public/assets/css/style.css'       => 'assets/css/style.css',
     'public/api/create-booking.php'     => 'api/create-booking.php',
+    'config/config.php'                 => 'config/config.php',
 ];
 
 $ok = 0; $fail = 0;

@@ -15,9 +15,10 @@ $code = $_GET['code'] ?? '';
 $booking = null;
 
 if ($code) {
-    $booking = dbFetchOne("
+    // Query hotel DB directly — booking is stored in adf_narayana_hotel
+    $booking = dbFetch("
         SELECT b.*, 
-               g.full_name, g.email, g.phone_number,
+               g.guest_name, g.email, g.phone,
                g.id_card_type, g.nationality,
                r.room_number, r.floor_number,
                rt.type_name, rt.base_price, rt.amenities
@@ -25,8 +26,8 @@ if ($code) {
         JOIN guests g ON b.guest_id = g.id
         JOIN rooms r ON b.room_id = r.id
         JOIN room_types rt ON r.room_type_id = rt.id
-        WHERE b.booking_code = :code
-    ", [':code' => $code]);
+        WHERE b.booking_code = ?
+    ", [$code]);
 }
 
 include __DIR__ . '/includes/header.php';
@@ -62,7 +63,7 @@ include __DIR__ . '/includes/header.php';
             <div class="confirmation-header">
                 <div class="confirmation-icon"><i class="fas fa-check-circle"></i></div>
                 <h2>Reservation Confirmed</h2>
-                <p>Thank you, <?= htmlspecialchars($booking['full_name']) ?>!</p>
+                <p>Thank you, <?= htmlspecialchars($booking['guest_name']) ?>!</p>
                 <div class="booking-code"><?= htmlspecialchars($booking['booking_code']) ?></div>
             </div>
 
@@ -110,7 +111,7 @@ include __DIR__ . '/includes/header.php';
                         </div>
                         <div class="detail-item">
                             <div class="detail-label">Guests</div>
-                            <div class="detail-value"><?= $booking['number_of_guests'] ?></div>
+                            <div class="detail-value"><?= $booking['adults'] ?></div>
                         </div>
                     </div>
                 </div>
@@ -120,7 +121,7 @@ include __DIR__ . '/includes/header.php';
                     <div class="detail-grid">
                         <div class="detail-item">
                             <div class="detail-label">Name</div>
-                            <div class="detail-value"><?= htmlspecialchars($booking['full_name']) ?></div>
+                            <div class="detail-value"><?= htmlspecialchars($booking['guest_name']) ?></div>
                         </div>
                         <div class="detail-item">
                             <div class="detail-label">Email</div>
@@ -128,7 +129,7 @@ include __DIR__ . '/includes/header.php';
                         </div>
                         <div class="detail-item">
                             <div class="detail-label">Phone</div>
-                            <div class="detail-value"><?= htmlspecialchars($booking['phone_number']) ?></div>
+                            <div class="detail-value"><?= htmlspecialchars($booking['phone']) ?></div>
                         </div>
                         <div class="detail-item">
                             <div class="detail-label">Nationality</div>

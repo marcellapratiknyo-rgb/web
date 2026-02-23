@@ -1,7 +1,8 @@
 <?php
 /**
  * API: Create Booking
- * Creates a new booking in the hotel system from the public website
+ * Creates a new booking in the HOTEL database (adf_narayana_hotel)
+ * So it appears in both the website AND ADF frontdesk system
  */
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
@@ -58,9 +59,12 @@ try {
         throw new Exception('Invalid email address');
     }
     
+    // All queries use $pdo = adf_narayana_hotel (the hotel system DB)
+    // This ensures bookings show in both website AND ADF frontdesk
+    
     // Check room exists and get price
     $room = dbFetch("
-        SELECT r.*, rt.type_name, rt.base_price 
+        SELECT r.*, rt.type_name, rt.base_price, rt.max_occupancy
         FROM rooms r 
         JOIN room_types rt ON r.room_type_id = rt.id 
         WHERE r.id = ?
@@ -68,6 +72,11 @@ try {
     
     if (!$room) {
         throw new Exception('Room not found');
+    }
+    
+    // Check guest count doesn't exceed room capacity
+    if ($guests > $room['max_occupancy']) {
+        throw new Exception('Number of guests exceeds room capacity (' . $room['max_occupancy'] . ' max)');
     }
     
     // Check room is still available for these dates
@@ -90,55 +99,37 @@ try {
     // Generate booking code
     $bookingCode = 'BK-' . date('Ymd') . '-' . str_pad(random_int(1000, 9999), 4, '0', STR_PAD_LEFT);
     
+    // Write directly to hotel DB ($pdo) — NOT web DB
     $pdo->beginTransaction();
     
     try {
-        // Create or find guest
-        $existingGuest = dbFetch("SELECT id FROM guests WHERE email = ? OR phone = ?", [$guestEmail, $guestPhone]);
+        // Create or find guest in hotel DB
+        $stmt = $pdo->prepare("SELECT id FROM guests WHERE email = ? OR phone = ?");
+        $stmt->execute([$guestEmail, $guestPhone]);
+        $existingGuest = $stmt->fetch();
         
         if ($existingGuest) {
             $guestId = $existingGuest['id'];
             // Update guest info
-            dbUpdate('guests', [
-                'guest_name' => $guestName,
-                'phone' => $guestPhone,
-                'email' => $guestEmail,
-                'id_card_type' => $idCardType,
-                'id_card_number' => $idCardNumber,
-                'nationality' => $nationality,
-            ], 'id = ?', [$guestId]);
+            $stmt = $pdo->prepare("UPDATE guests SET guest_name = ?, phone = ?, email = ?, id_card_type = ?, id_card_number = ?, nationality = ? WHERE id = ?");
+            $stmt->execute([$guestName, $guestPhone, $guestEmail, $idCardType, $idCardNumber, $nationality, $guestId]);
         } else {
-            $guestId = dbInsert('guests', [
-                'guest_name' => $guestName,
-                'phone' => $guestPhone,
-                'email' => $guestEmail,
-                'id_card_type' => $idCardType,
-                'id_card_number' => $idCardNumber,
-                'nationality' => $nationality,
-            ]);
+            $stmt = $pdo->prepare("INSERT INTO guests (guest_name, phone, email, id_card_type, id_card_number, nationality) VALUES (?, ?, ?, ?, ?, ?)");
+            $stmt->execute([$guestName, $guestPhone, $guestEmail, $idCardType, $idCardNumber, $nationality]);
+            $guestId = $pdo->lastInsertId();
         }
         
-        // Create booking
-        $bookingId = dbInsert('bookings', [
-            'booking_code' => $bookingCode,
-            'guest_id' => $guestId,
-            'room_id' => $roomId,
-            'check_in_date' => $checkIn,
-            'check_out_date' => $checkOut,
-            'adults' => $guests,
-            'children' => 0,
-            'room_price' => $roomPrice,
-            'total_nights' => $nights,
-            'total_price' => $totalPrice,
-            'discount' => 0,
-            'final_price' => $totalPrice,
-            'status' => 'confirmed',
-            'payment_status' => 'unpaid',
-            'paid_amount' => 0,
-            'booking_source' => 'online',
-            'special_request' => $specialRequest,
-            'notes' => 'Booked via website',
+        // Create booking in hotel DB
+        $stmt = $pdo->prepare("
+            INSERT INTO bookings (booking_code, guest_id, room_id, check_in_date, check_out_date, adults, children, room_price, total_nights, total_price, discount, final_price, status, payment_status, paid_amount, booking_source, special_request, notes) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ");
+        $stmt->execute([
+            $bookingCode, $guestId, $roomId, $checkIn, $checkOut,
+            $guests, 0, $roomPrice, $nights, $totalPrice, 0, $totalPrice,
+            'confirmed', 'unpaid', 0, 'online', $specialRequest, 'Booked via website'
         ]);
+        $bookingId = $pdo->lastInsertId();
         
         $pdo->commit();
         
@@ -147,7 +138,7 @@ try {
             'data' => [
                 'booking_id' => $bookingId,
                 'booking_code' => $bookingCode,
-                'room_type' => $room['type_name'],
+                'room_type' => trim($room['type_name']),
                 'room_number' => $room['room_number'],
                 'check_in' => $checkIn,
                 'check_out' => $checkOut,
