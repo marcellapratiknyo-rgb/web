@@ -67,8 +67,9 @@ include __DIR__ . '/includes/header.php';
     <div class="container">
         <?php foreach ($roomTypes as $i => $room):
             $amenities = $room['amenities'] ? array_map('trim', explode(',', $room['amenities'])) : [];
-            $icon = $roomIcons[$room['type_name']] ?? '🏨';
-            $desc = $roomDescriptions[$room['type_name']] ?? 'A comfortable room designed for your perfect island stay.';
+            $typeName = trim($room['type_name']);
+            $icon = $roomIcons[$typeName] ?? '🏨';
+            $desc = $roomDescriptions[$typeName] ?? 'A comfortable room designed for your perfect island stay.';
             $avail = (int)$room['available_rooms'];
             $reverse = $i % 2 !== 0;
             
@@ -77,14 +78,14 @@ include __DIR__ . '/includes/header.php';
             else { $ac = 'full'; $at = 'Fully booked today'; }
 
             $typeRooms = array_filter($rooms, fn($r) => $r['room_type_id'] == $room['id']);
-            $gallery = $roomGalleries[$room['type_name']] ?? [];
+            $gallery = $roomGalleries[$typeName] ?? [];
             $firstImage = !empty($gallery) ? $gallery[0] : null;
         ?>
         <div class="room-detail <?= $reverse ? 'reverse' : '' ?> fade-in">
             <!-- Image -->
             <div class="room-detail-image">
                 <?php if ($firstImage): ?>
-                    <img src="<?= BASE_URL ?>/<?= htmlspecialchars($firstImage) ?>" alt="<?= htmlspecialchars($room['type_name']) ?> Room" style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0;">
+                    <img src="<?= BASE_URL ?>/<?= htmlspecialchars($firstImage) ?>" alt="<?= htmlspecialchars($typeName) ?> Room" style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0;">
                 <?php else: ?>
                     <span class="room-emoji"><?= $icon ?></span>
                 <?php endif; ?>
@@ -95,8 +96,8 @@ include __DIR__ . '/includes/header.php';
 
             <!-- Info -->
             <div class="room-detail-info">
-                <div class="section-eyebrow"><?= htmlspecialchars($room['type_name']) ?> Room</div>
-                <h2><?= htmlspecialchars($room['type_name']) ?></h2>
+                <div class="section-eyebrow"><?= htmlspecialchars($typeName) ?> Room</div>
+                <h2><?= htmlspecialchars($typeName) ?></h2>
                 <div class="divider"></div>
                 <p style="color:var(--warm-gray); line-height:1.8; margin-bottom:20px;"><?= $desc ?></p>
 
