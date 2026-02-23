@@ -217,7 +217,7 @@ h3 { font-size: clamp(1.2rem, 2vw, 1.6rem); }
     z-index: 1000;
     background: transparent;
     transition: all 0.4s var(--ease);
-    height: 72px;
+    height: 60px;
     display: flex;
     align-items: center;
 }
@@ -225,7 +225,7 @@ h3 { font-size: clamp(1.2rem, 2vw, 1.6rem); }
 .navbar.scrolled {
     background: var(--white);
     box-shadow: 0 1px 0 rgba(0,0,0,0.08);
-    height: 64px;
+    height: 56px;
 }
 
 .navbar .container {
@@ -238,25 +238,28 @@ h3 { font-size: clamp(1.2rem, 2vw, 1.6rem); }
 .navbar-brand {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     z-index: 2;
+    text-decoration: none;
+    flex-shrink: 0;
 }
 
 .brand-logo {
     font-family: var(--font-heading);
-    font-size: 1.5rem;
+    font-size: 1.15rem;
     font-weight: 400;
     color: var(--white);
-    letter-spacing: 1px;
+    letter-spacing: 0.8px;
     transition: color 0.4s var(--ease);
+    white-space: nowrap;
 }
 
 .brand-sub {
-    font-size: 10px;
-    letter-spacing: 3px;
+    font-size: 8px;
+    letter-spacing: 2.5px;
     text-transform: uppercase;
-    color: rgba(255,255,255,0.7);
-    margin-top: -2px;
+    color: rgba(255,255,255,0.65);
+    margin-top: -1px;
     transition: color 0.4s var(--ease);
 }
 
@@ -1865,11 +1868,13 @@ textarea.form-control { resize: vertical; }
     .nav-toggle { display: flex; }
     
     /* ─── Navbar compact ─── */
-    .navbar { height: 56px; }
-    .navbar.scrolled { height: 52px; }
-    .brand-logo { font-size: 1.2rem; letter-spacing: 0.5px; }
-    .brand-sub { font-size: 8px; letter-spacing: 2px; }
-    .navbar-brand { gap: 6px; }
+    .navbar { height: 52px; }
+    .navbar.scrolled { height: 48px; }
+    .brand-logo { font-size: 1rem; letter-spacing: 0.4px; }
+    .brand-sub { font-size: 7px; letter-spacing: 1.5px; }
+    .navbar-brand { gap: 5px; }
+    .brand-img { width: 26px; height: 26px; }
+    .navbar.scrolled .brand-img { width: 24px; height: 24px; }
     
     /* ─── HERO — Luxury compact centered ─── */
     .hero { min-height: 100vh; min-height: 100svh; }
@@ -2280,15 +2285,21 @@ textarea.form-control { resize: vertical; }
    LOGO IN NAVBAR
 ======================================== */
 .brand-img {
-    width: 40px;
-    height: 40px;
+    width: 32px;
+    height: 32px;
     object-fit: contain;
-    border-radius: 6px;
-    transition: opacity 0.4s var(--ease);
+    border-radius: 4px;
+    transition: all 0.4s var(--ease);
+    flex-shrink: 0;
+}
+.navbar.scrolled .brand-img {
+    width: 28px;
+    height: 28px;
 }
 .brand-text {
     display: flex;
     flex-direction: column;
+    line-height: 1.15;
 }
 
 /* ========================================
@@ -2678,7 +2689,8 @@ textarea.form-control { resize: vertical; }
     .btn-primary-dest, .btn-outline-dest { width: 100%; text-align: center; justify-content: center; }
     .dest-cta-box { padding: 28px 20px; }
     .dest-cta-section h2 { font-size: 1.5rem; }
-    .brand-img { width: 34px; height: 34px; }
+    .brand-img { width: 26px; height: 26px; }
+    .navbar.scrolled .brand-img { width: 24px; height: 24px; }
 }
 
 @media (max-width: 420px) {
@@ -2692,5 +2704,9 @@ textarea.form-control { resize: vertical; }
     .dest-card-body h3 { font-size: 1.1rem; }
     .dest-hero-title { font-size: 1.5rem; }
     .dest-detail-text { font-size: 0.95rem; }
-    .brand-img { width: 30px; height: 30px; }
+    .brand-img { width: 22px; height: 22px; }
+    .navbar.scrolled .brand-img { width: 20px; height: 20px; }
+    .brand-logo { font-size: 0.9rem; }
+    .brand-sub { font-size: 6px; letter-spacing: 1.2px; }
+    .navbar-brand { gap: 4px; }
 }
